@@ -2,28 +2,32 @@ import gleam/float
 import gleam/int
 import gleam/result
 import input
+import persevero
 
 pub fn int_input(prompt: String) -> Int {
-  number_input(prompt, int.parse)
+  let operation = fn() { prompt |> input.input |> result.try(int.parse) }
+  retry(operation)
 }
 
 pub fn float_input(prompt: String) -> Float {
-  number_input(prompt, float.parse)
+  let operation = fn() { prompt |> input.input |> result.try(float.parse) }
+  retry(operation)
 }
 
 pub fn text_input(prompt: String) -> String {
-  let func = fn() { input.input(prompt) }
-  retry(func)
+  let operation = fn() { prompt |> input.input }
+  retry(operation)
 }
 
-fn number_input(prompt: String, parse: fn(String) -> Result(a, Nil)) -> a {
-  let func = fn() { prompt |> input.input |> result.try(parse) }
-  retry(func)
-}
+fn retry(operation: fn() -> Result(a, b)) -> a {
+  let assert Ok(value) =
+    persevero.execute(
+      wait_stream: persevero.no_backoff(),
+      allow: persevero.all_errors,
+      // persevero doesn't have an `Endless` mode
+      mode: persevero.MaxAttempts(10_000_000),
+      operation:,
+    )
 
-fn retry(func: fn() -> Result(a, b)) -> a {
-  case func() {
-    Ok(value) -> value
-    Error(_) -> retry(func)
-  }
+  value
 }
