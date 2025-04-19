@@ -1,43 +1,49 @@
-import gleam/bool
 import gleam/float
 import gleam/int
 import gleam/result
 import input
-import persevero
 
-pub fn int(prompt: String) -> Int {
+pub opaque type PromptResult(a, b) {
+  PromptResult(operation: fn() -> Result(a, Nil))
+}
+
+pub fn int(prompt: String) -> PromptResult(Int, Nil) {
   let operation = fn() { prompt |> input.input |> result.try(int.parse) }
-  retry(operation)
+  PromptResult(operation)
 }
 
-pub fn float(prompt: String) -> Float {
+pub fn float(prompt: String) -> PromptResult(Float, Nil) {
   let operation = fn() { prompt |> input.input |> result.try(float.parse) }
-  retry(operation)
+  PromptResult(operation)
 }
 
-pub fn text(prompt: String) -> String {
+pub fn string(prompt: String) -> PromptResult(String, Nil) {
   let operation = fn() { prompt |> input.input }
-  retry(operation)
+  PromptResult(operation)
 }
 
-pub fn choice(prompt: String, is_valid_option: fn(String) -> Bool) -> String {
+pub fn with_choice(
+  prompt: PromptResult(a, b),
+  is_valid_option: fn(a) -> Bool,
+) -> PromptResult(a, b) {
   let operation = fn() {
-    use input <- result.try(input.input(prompt))
-    use <- bool.guard(is_valid_option(input), Error(Nil))
-    Ok(input)
+    let input = prompt.operation()
+    case input {
+      Ok(input) -> {
+        case is_valid_option(input) {
+          True -> Ok(input)
+          False -> Error(Nil)
+        }
+      }
+      Error(_) -> Error(Nil)
+    }
   }
-  retry(operation)
+  PromptResult(operation)
 }
 
-fn retry(operation: fn() -> Result(a, b)) -> a {
-  let assert Ok(value) =
-    persevero.execute(
-      wait_stream: persevero.no_backoff(),
-      allow: persevero.all_errors,
-      // persevero doesn't have an `Endless` mode
-      mode: persevero.MaxAttempts(10_000_000),
-      operation:,
-    )
-
-  value
+pub fn run(prompt: PromptResult(a, b)) -> a {
+  case prompt.operation() {
+    Ok(value) -> value
+    Error(_) -> run(prompt)
+  }
 }
