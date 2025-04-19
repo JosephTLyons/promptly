@@ -3,34 +3,31 @@ import gleam/int
 import gleam/result
 import input
 
-pub opaque type PromptResult(a, b) {
-  PromptResult(operation: fn() -> Result(a, Nil))
+pub opaque type Prompt(a) {
+  Prompt(operation: fn() -> Result(a, Nil))
 }
 
-pub fn int(prompt: String) -> PromptResult(Int, Nil) {
+pub fn int(prompt: String) -> Prompt(Int) {
   let operation = fn() { prompt |> input.input |> result.try(int.parse) }
-  PromptResult(operation)
+  Prompt(operation)
 }
 
-pub fn float(prompt: String) -> PromptResult(Float, Nil) {
+pub fn float(prompt: String) -> Prompt(Float) {
   let operation = fn() { prompt |> input.input |> result.try(float.parse) }
-  PromptResult(operation)
+  Prompt(operation)
 }
 
-pub fn string(prompt: String) -> PromptResult(String, Nil) {
+pub fn string(prompt: String) -> Prompt(String) {
   let operation = fn() { prompt |> input.input }
-  PromptResult(operation)
+  Prompt(operation)
 }
 
-pub fn with_choice(
-  prompt: PromptResult(a, b),
-  is_valid_option: fn(a) -> Bool,
-) -> PromptResult(a, b) {
+pub fn with_validator(prompt: Prompt(a), is_valid: fn(a) -> Bool) -> Prompt(a) {
   let operation = fn() {
-    let input = prompt.operation()
-    case input {
+    let operation = prompt.operation()
+    case operation {
       Ok(input) -> {
-        case is_valid_option(input) {
+        case is_valid(input) {
           True -> Ok(input)
           False -> Error(Nil)
         }
@@ -38,10 +35,10 @@ pub fn with_choice(
       Error(_) -> Error(Nil)
     }
   }
-  PromptResult(operation)
+  Prompt(operation)
 }
 
-pub fn run(prompt: PromptResult(a, b)) -> a {
+pub fn run(prompt: Prompt(a)) -> a {
   case prompt.operation() {
     Ok(value) -> value
     Error(_) -> run(prompt)
