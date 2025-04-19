@@ -1,3 +1,4 @@
+import gleam/bool
 import gleam/float
 import gleam/int
 import gleam/result
@@ -16,6 +17,15 @@ pub fn float_input(prompt: String) -> Float {
 
 pub fn text_input(prompt: String) -> String {
   let operation = fn() { prompt |> input.input }
+  retry(operation)
+}
+
+pub fn choice(prompt: String, is_valid_option: fn(String) -> Bool) -> String {
+  let operation = fn() {
+    use input <- result.try(input.input(prompt))
+    use <- bool.guard(is_valid_option(input), Error(Nil))
+    Ok(input)
+  }
   retry(operation)
 }
 
