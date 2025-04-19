@@ -5,17 +5,17 @@ import gleam/result
 import input
 import persevero
 
-pub fn int_input(prompt: String) -> Int {
+pub fn int(prompt: String) -> Int {
   let operation = fn() { prompt |> input.input |> result.try(int.parse) }
   retry(operation)
 }
 
-pub fn float_input(prompt: String) -> Float {
+pub fn float(prompt: String) -> Float {
   let operation = fn() { prompt |> input.input |> result.try(float.parse) }
   retry(operation)
 }
 
-pub fn text_input(prompt: String) -> String {
+pub fn text(prompt: String) -> String {
   let operation = fn() { prompt |> input.input }
   retry(operation)
 }
