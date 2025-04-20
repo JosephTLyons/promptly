@@ -22,16 +22,18 @@ pub fn new_internal(
 }
 
 pub fn int(prompt: Prompt(String)) -> Prompt(Int) {
-  let operation = fn(attempt) {
-    prompt.operation(attempt) |> result.try(int.parse)
-  }
-  Prompt(operation)
+  to_number(prompt, int.parse)
 }
 
 pub fn float(prompt: Prompt(String)) -> Prompt(Float) {
-  let operation = fn(attempt) {
-    prompt.operation(attempt) |> result.try(float.parse)
-  }
+  to_number(prompt, float.parse)
+}
+
+fn to_number(
+  prompt: Prompt(String),
+  parse: fn(String) -> Result(a, Nil),
+) -> Prompt(a) {
+  let operation = fn(attempt) { prompt.operation(attempt) |> result.try(parse) }
   Prompt(operation)
 }
 
