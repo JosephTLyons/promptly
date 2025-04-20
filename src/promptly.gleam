@@ -17,7 +17,8 @@ pub fn new_internal(
   prompt: String,
   operation: fn(String, Int) -> Result(String, Nil),
 ) -> Prompt(String) {
-  Prompt(operation(prompt, _))
+  let operation = operation(prompt, _)
+  Prompt(operation)
 }
 
 pub fn int(prompt: Prompt(String)) -> Prompt(Int) {
