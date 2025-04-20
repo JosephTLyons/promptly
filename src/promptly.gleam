@@ -21,13 +21,15 @@ pub fn new_internal(
 }
 
 pub fn int(prompt: Prompt(String)) -> Prompt(Int) {
-  let operation = fn(count) { prompt.operation(count) |> result.try(int.parse) }
+  let operation = fn(attempt) {
+    prompt.operation(attempt) |> result.try(int.parse)
+  }
   Prompt(operation)
 }
 
 pub fn float(prompt: Prompt(String)) -> Prompt(Float) {
-  let operation = fn(count) {
-    prompt.operation(count) |> result.try(float.parse)
+  let operation = fn(attempt) {
+    prompt.operation(attempt) |> result.try(float.parse)
   }
   Prompt(operation)
 }
@@ -45,8 +47,8 @@ pub fn with_map_validator(
   prompt: Prompt(a),
   map_validator: fn(a) -> Result(a, Nil),
 ) -> Prompt(a) {
-  let operation = fn(count) {
-    let operation = prompt.operation(count)
+  let operation = fn(attempt) {
+    let operation = prompt.operation(attempt)
     case operation {
       Ok(input) -> {
         case map_validator(input) {
