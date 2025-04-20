@@ -7,46 +7,28 @@ pub opaque type Prompt(a) {
   Prompt(operation: fn(Int) -> Result(a, Nil))
 }
 
-pub fn int(prompt: String) -> Prompt(Int) {
-  int_internal(prompt, fn(text, _) { input.input(text) })
+pub fn new(prompt: String) -> Prompt(String) {
+  let operation = fn(text, _) { input.input(text) }
+  new_internal(prompt, operation)
 }
 
 @internal
-pub fn int_internal(
+pub fn new_internal(
   prompt: String,
-  input_function: fn(String, Int) -> Result(String, Nil),
-) -> Prompt(Int) {
-  let operation = fn(count) {
-    prompt |> input_function(count) |> result.try(int.parse)
-  }
-  Prompt(operation)
-}
-
-pub fn float(prompt: String) -> Prompt(Float) {
-  prompt |> float_internal(fn(text, _) { input.input(text) })
-}
-
-@internal
-pub fn float_internal(
-  prompt: String,
-  input_function: fn(String, Int) -> Result(String, Nil),
-) -> Prompt(Float) {
-  let operation = fn(count) {
-    prompt |> input_function(count) |> result.try(float.parse)
-  }
-  Prompt(operation)
-}
-
-pub fn string(prompt: String) -> Prompt(String) {
-  string_internal(prompt, fn(text, _) { input.input(text) })
-}
-
-@internal
-pub fn string_internal(
-  prompt: String,
-  input_function: fn(String, Int) -> Result(String, Nil),
+  operation: fn(String, Int) -> Result(String, Nil),
 ) -> Prompt(String) {
-  let operation = fn(count) { input_function(prompt, count) }
+  Prompt(operation(prompt, _))
+}
+
+pub fn int(prompt: Prompt(String)) -> Prompt(Int) {
+  let operation = fn(count) { prompt.operation(count) |> result.try(int.parse) }
+  Prompt(operation)
+}
+
+pub fn float(prompt: Prompt(String)) -> Prompt(Float) {
+  let operation = fn(count) {
+    prompt.operation(count) |> result.try(float.parse)
+  }
   Prompt(operation)
 }
 
