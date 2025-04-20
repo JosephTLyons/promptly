@@ -48,8 +48,8 @@ pub fn with_validator(prompt: Prompt(a), validator: fn(a) -> Bool) -> Prompt(a) 
 
 pub fn with_map_validator(
   prompt: Prompt(a),
-  map_validator: fn(a) -> Result(a, Nil),
-) -> Prompt(a) {
+  map_validator: fn(a) -> Result(b, Nil),
+) -> Prompt(b) {
   let operation = fn(attempt) {
     let operation = prompt.operation(attempt)
     case operation {

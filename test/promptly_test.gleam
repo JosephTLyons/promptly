@@ -104,6 +104,24 @@ pub fn promptly_float_with_validation_test() {
   |> should.equal(3.14)
 }
 
+pub fn promptly_int_with_map_to_different_type_validator_test() {
+  let result_returning_function =
+    result_returning_function(results: ["Dog", "2", "0.0", "3.14"])
+
+  promptly.new_internal("Give me any non-zero float", fn(_, attempt) {
+    result_returning_function(attempt)
+  })
+  |> promptly.int
+  |> promptly.with_map_validator(fn(value) {
+    case value {
+      1 -> Ok("a")
+      _ -> Ok("b")
+    }
+  })
+  |> promptly.prompt
+  |> should.equal("b")
+}
+
 fn result_returning_function(
   results results: List(a),
 ) -> fn(Int) -> Result(a, b) {
