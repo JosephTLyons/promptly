@@ -12,19 +12,23 @@ pub fn main() -> Nil {
 
 // Examples do not run (they would lock on waiting for input), they just ensure
 // the external api doesn't change while making changes to allow for testing
-pub fn example_1() {
+pub fn text_example() {
   fn() {
     let options = ["Danny", "Kayla", "Gina", "Emery"]
     let option_text = string.join(options, ", ")
     let prompt = "Who is my best friend? [" <> option_text <> "]: "
 
-    promptly.new(prompt)
-    |> promptly.with_validator(list.contains(options, _))
-    |> promptly.run
+    let validator = fn(a) {
+      options |> list.map(string.lowercase) |> list.contains(a)
+    }
+    echo prompt
+      |> promptly.new
+      |> promptly.with_validator(validator)
+      |> promptly.run
   }
 }
 
-pub fn example_2() {
+pub fn int_example() {
   fn() {
     let lower = 0
     let upper = 100
@@ -42,7 +46,7 @@ pub fn example_2() {
   }
 }
 
-pub fn example_3() {
+pub fn float_example() {
   fn() {
     promptly.new("Give me a non-zero float: ")
     |> promptly.float
