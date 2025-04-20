@@ -1,6 +1,7 @@
 import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import gleam/regexp
 import gleam/string
 import gleeunit
 import gleeunit/should
@@ -55,6 +56,21 @@ pub fn float_example() {
   }
 }
 
+pub fn map_validator_example() {
+  fn() {
+    promptly.new("When is your birthday (dd/mm/yyyy): ")
+    |> promptly.with_validator(fn(a) { string.length(a) < 50 })
+    |> promptly.with_map_validator(fn(text) {
+      let assert Ok(re) = regexp.from_string("\\d{2}/\\d{2}/\\d{4}")
+      case regexp.scan(re, text) {
+        [] -> Error(Nil)
+        [match, ..] -> Ok(match.content)
+      }
+    })
+    |> promptly.run
+  }
+}
+
 pub fn promptly_text_test() {
   let result_returning_function =
     result_returning_function(results: ["Dog", "Bear", "I'm a Mongoose!", "Cat"])
@@ -76,6 +92,26 @@ pub fn promptly_text_with_validation_test() {
   |> promptly.with_validator(fn(text) { string.length(text) > 10 })
   |> promptly.run
   |> should.equal("I'm a Mongoose!")
+}
+
+pub fn promptly_text_with_map_validation_test() {
+  let result_returning_function =
+    result_returning_function(results: [
+      "It's in April", "My birthday is 04/12/1990",
+    ])
+
+  promptly.new_internal("When is your birthday: ", fn(_, attempt) {
+    result_returning_function(attempt)
+  })
+  |> promptly.with_map_validator(fn(text) {
+    let assert Ok(re) = regexp.from_string("\\d{2}/\\d{2}/\\d{4}")
+    case regexp.scan(re, text) {
+      [] -> Error(Nil)
+      [match, ..] -> Ok(match.content)
+    }
+  })
+  |> promptly.run
+  |> should.equal("04/12/1990")
 }
 
 pub fn promptly_int_test() {

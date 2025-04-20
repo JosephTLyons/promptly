@@ -32,14 +32,26 @@ pub fn float(prompt: Prompt(String)) -> Prompt(Float) {
   Prompt(operation)
 }
 
-pub fn with_validator(prompt: Prompt(a), is_valid: fn(a) -> Bool) -> Prompt(a) {
+pub fn with_validator(prompt: Prompt(a), validator: fn(a) -> Bool) -> Prompt(a) {
+  with_map_validator(prompt, fn(a) {
+    case validator(a) {
+      False -> Error(Nil)
+      True -> Ok(a)
+    }
+  })
+}
+
+pub fn with_map_validator(
+  prompt: Prompt(a),
+  map_validator: fn(a) -> Result(a, Nil),
+) -> Prompt(a) {
   let operation = fn(count) {
     let operation = prompt.operation(count)
     case operation {
       Ok(input) -> {
-        case is_valid(input) {
-          True -> Ok(input)
-          False -> Error(Nil)
+        case map_validator(input) {
+          Ok(input) -> Ok(input)
+          Error(_) -> Error(Nil)
         }
       }
       Error(_) -> Error(Nil)
