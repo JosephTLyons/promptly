@@ -33,10 +33,10 @@ pub fn float(prompt: Prompt(String)) -> Prompt(Float) {
 }
 
 pub fn with_validator(prompt: Prompt(a), validator: fn(a) -> Bool) -> Prompt(a) {
-  with_map_validator(prompt, fn(a) {
-    case validator(a) {
+  with_map_validator(prompt, fn(value) {
+    case validator(value) {
+      True -> Ok(value)
       False -> Error(Nil)
-      True -> Ok(a)
     }
   })
 }
