@@ -1,5 +1,4 @@
 import gleam/int
-import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/regexp
 import gleam/string
@@ -9,66 +8,6 @@ import promptly
 
 pub fn main() -> Nil {
   gleeunit.main()
-}
-
-// Examples do not run (they would lock on waiting for input), they just ensure
-// the external api doesn't change while making changes to allow for testing
-pub fn text_example() {
-  fn() {
-    let options = ["Danny", "Kayla", "Gina", "Emery"]
-    let option_text = string.join(options, ", ")
-    let prompt = "Who is my best friend? [" <> option_text <> "]: "
-
-    let validator = fn(a) {
-      options |> list.map(string.lowercase) |> list.contains(a)
-    }
-    echo prompt
-      |> promptly.new
-      |> promptly.with_validator(validator)
-      |> promptly.run
-  }
-}
-
-pub fn int_example() {
-  fn() {
-    let lower = 0
-    let upper = 100
-    let prompt =
-      "Pick a number ["
-      <> int.to_string(lower)
-      <> ", "
-      <> int.to_string(upper)
-      <> "): "
-
-    promptly.new(prompt)
-    |> promptly.int
-    |> promptly.with_validator(fn(a) { a >= lower && a < upper })
-    |> promptly.run
-  }
-}
-
-pub fn float_example() {
-  fn() {
-    promptly.new("Give me a non-zero float: ")
-    |> promptly.float
-    |> promptly.with_validator(fn(a) { a != 0.0 })
-    |> promptly.run
-  }
-}
-
-pub fn map_validator_example() {
-  fn() {
-    promptly.new("When is your birthday (dd/mm/yyyy): ")
-    |> promptly.with_validator(fn(a) { string.length(a) < 50 })
-    |> promptly.with_map_validator(fn(text) {
-      let assert Ok(re) = regexp.from_string("\\d{2}/\\d{2}/\\d{4}")
-      case regexp.scan(re, text) {
-        [] -> Error(Nil)
-        [match, ..] -> Ok(match.content)
-      }
-    })
-    |> promptly.run
-  }
 }
 
 pub fn promptly_text_test() {
@@ -100,16 +39,17 @@ pub fn promptly_text_with_map_validation_test() {
       "It's in April", "My birthday is 04/12/1990",
     ])
 
-  promptly.new_internal("When is your birthday: ", fn(_, attempt) {
-    result_returning_function(attempt)
-  })
-  |> promptly.with_map_validator(fn(text) {
+  let validator = fn(text) {
     let assert Ok(re) = regexp.from_string("\\d{2}/\\d{2}/\\d{4}")
     case regexp.scan(re, text) {
       [] -> Error(Nil)
       [match, ..] -> Ok(match.content)
     }
+  }
+  promptly.new_internal("When is your birthday (dd/mm/yyyy): ", fn(_, attempt) {
+    result_returning_function(attempt)
   })
+  |> promptly.with_map_validator(validator)
   |> promptly.run
   |> should.equal("04/12/1990")
 }
