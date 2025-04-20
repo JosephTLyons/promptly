@@ -17,7 +17,7 @@ pub fn promptly_text_test() {
   promptly.new_internal("Give me some text", fn(_, attempt) {
     result_returning_function(attempt)
   })
-  |> promptly.run
+  |> promptly.prompt
   |> should.equal("Dog")
 }
 
@@ -29,7 +29,7 @@ pub fn promptly_text_with_validation_test() {
     result_returning_function(attempt)
   })
   |> promptly.with_validator(fn(text) { string.length(text) > 10 })
-  |> promptly.run
+  |> promptly.prompt
   |> should.equal("I'm a Mongoose!")
 }
 
@@ -50,7 +50,7 @@ pub fn promptly_text_with_map_validation_test() {
     result_returning_function(attempt)
   })
   |> promptly.with_map_validator(validator)
-  |> promptly.run
+  |> promptly.prompt
   |> should.equal("04/12/1990")
 }
 
@@ -62,7 +62,7 @@ pub fn promptly_int_test() {
     result_returning_function(attempt)
   })
   |> promptly.int
-  |> promptly.run
+  |> promptly.prompt
   |> should.equal(100)
 }
 
@@ -75,7 +75,7 @@ pub fn promptly_int_with_validation_test() {
   })
   |> promptly.int
   |> promptly.with_validator(int.is_odd)
-  |> promptly.run
+  |> promptly.prompt
   |> should.equal(3)
 }
 
@@ -87,7 +87,7 @@ pub fn promptly_float_test() {
     result_returning_function(attempt)
   })
   |> promptly.float
-  |> promptly.run
+  |> promptly.prompt
   |> should.equal(0.0)
 }
 
@@ -100,7 +100,7 @@ pub fn promptly_float_with_validation_test() {
   })
   |> promptly.float
   |> promptly.with_validator(fn(value) { value != 0.0 })
-  |> promptly.run
+  |> promptly.prompt
   |> should.equal(3.14)
 }
 

@@ -20,7 +20,7 @@ pub fn text_example() {
     echo prompt
       |> promptly.new
       |> promptly.with_validator(validator)
-      |> promptly.run
+      |> promptly.prompt
   }
 }
 
@@ -38,7 +38,7 @@ pub fn int_example() {
     promptly.new(prompt)
     |> promptly.int
     |> promptly.with_validator(fn(a) { a >= lower && a < upper })
-    |> promptly.run
+    |> promptly.prompt
   }
 }
 
@@ -47,7 +47,7 @@ pub fn float_example() {
     promptly.new("Give me a non-zero float: ")
     |> promptly.float
     |> promptly.with_validator(fn(a) { a != 0.0 })
-    |> promptly.run
+    |> promptly.prompt
   }
 }
 
@@ -62,6 +62,6 @@ pub fn map_validator_example() {
     }
     promptly.new("When is your birthday (dd/mm/yyyy): ")
     |> promptly.with_map_validator(validator)
-    |> promptly.run
+    |> promptly.prompt
   }
 }
