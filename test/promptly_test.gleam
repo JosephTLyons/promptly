@@ -122,6 +122,30 @@ pub fn int_with_map_to_different_type_validator_test() {
   |> should.equal("b")
 }
 
+pub fn int_with_default_and_no_input_test() {
+  let result_returning_function = result_returning_function(results: [""])
+
+  promptly.new_internal("Give me any int (default 0): ", fn(_, attempt) {
+    result_returning_function(attempt)
+  })
+  |> promptly.with_default("0")
+  |> promptly.as_int
+  |> promptly.prompt
+  |> should.equal(0)
+}
+
+pub fn int_with_default_and_input_test() {
+  let result_returning_function = result_returning_function(results: ["1"])
+
+  promptly.new_internal("Give me any int (default 0): ", fn(_, attempt) {
+    result_returning_function(attempt)
+  })
+  |> promptly.with_default("0")
+  |> promptly.as_int
+  |> promptly.prompt
+  |> should.equal(1)
+}
+
 fn result_returning_function(
   results results: List(a),
 ) -> fn(Int) -> Result(a, b) {

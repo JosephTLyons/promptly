@@ -37,6 +37,16 @@ fn to_number(
   Prompt(operation)
 }
 
+pub fn with_default(prompt: Prompt(String), default: String) -> Prompt(String) {
+  let operation = fn(attempt) {
+    case prompt.operation(attempt) {
+      Ok("") -> Ok(default)
+      text -> text
+    }
+  }
+  Prompt(operation)
+}
+
 pub fn with_validator(prompt: Prompt(a), validator: fn(a) -> Bool) -> Prompt(a) {
   let map_validator = fn(value) {
     case validator(value) {
