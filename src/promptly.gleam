@@ -58,12 +58,12 @@ pub fn with_map_validator(
 }
 
 pub fn prompt(prompt: Prompt(a)) {
-  prompt_internal(prompt, 0)
+  prompt_loop(prompt, 0)
 }
 
-fn prompt_internal(prompt: Prompt(a), attempt: Int) -> a {
+fn prompt_loop(prompt: Prompt(a), attempt: Int) -> a {
   case prompt.operation(attempt) {
     Ok(value) -> value
-    Error(_) -> prompt_internal(prompt, attempt + 1)
+    Error(_) -> prompt_loop(prompt, attempt + 1)
   }
 }
