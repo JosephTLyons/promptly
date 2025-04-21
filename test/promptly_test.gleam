@@ -202,6 +202,18 @@ pub fn int_with_default_and_bad_input_and_then_good_input_test() {
   |> should.equal(1)
 }
 
+pub fn multiple_with_defaults_test() {
+  let result_returning_function = result_returning_function(results: [""])
+
+  promptly.new_internal("Give me any text: ", fn(_, attempt) {
+    result_returning_function(attempt)
+  })
+  |> promptly.with_default("Hey")
+  |> promptly.with_default("Man")
+  |> promptly.prompt
+  |> should.equal("Hey")
+}
+
 fn result_returning_function(
   results results: List(String),
 ) -> fn(Int) -> #(Result(String, Nil), InputStatus) {

@@ -61,7 +61,7 @@ pub fn with_default(prompt: Prompt(a), default: a) -> Prompt(a) {
       NotProvided -> Ok(default)
       Provided -> res
     }
-    #(res, input)
+    #(res, Provided)
   }
   Prompt(operation)
 }
