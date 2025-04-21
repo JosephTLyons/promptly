@@ -61,7 +61,7 @@ pub fn promptly_int_test() {
   promptly.new_internal("Give me any int", fn(_, attempt) {
     result_returning_function(attempt)
   })
-  |> promptly.int
+  |> promptly.as_int
   |> promptly.prompt
   |> should.equal(100)
 }
@@ -73,7 +73,7 @@ pub fn promptly_int_with_validation_test() {
   promptly.new_internal("Give me an odd int", fn(_, attempt) {
     result_returning_function(attempt)
   })
-  |> promptly.int
+  |> promptly.as_int
   |> promptly.with_validator(int.is_odd)
   |> promptly.prompt
   |> should.equal(3)
@@ -86,7 +86,7 @@ pub fn promptly_float_test() {
   promptly.new_internal("Give me any float", fn(_, attempt) {
     result_returning_function(attempt)
   })
-  |> promptly.float
+  |> promptly.as_float
   |> promptly.prompt
   |> should.equal(0.0)
 }
@@ -98,7 +98,7 @@ pub fn promptly_float_with_validation_test() {
   promptly.new_internal("Give me any non-zero float", fn(_, attempt) {
     result_returning_function(attempt)
   })
-  |> promptly.float
+  |> promptly.as_float
   |> promptly.with_validator(fn(value) { value != 0.0 })
   |> promptly.prompt
   |> should.equal(3.14)
@@ -111,7 +111,7 @@ pub fn promptly_int_with_map_to_different_type_validator_test() {
   promptly.new_internal("Give me any non-zero float", fn(_, attempt) {
     result_returning_function(attempt)
   })
-  |> promptly.int
+  |> promptly.as_int
   |> promptly.with_map_validator(fn(value) {
     case value {
       1 -> Ok("a")

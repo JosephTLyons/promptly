@@ -36,7 +36,7 @@ pub fn int_example() {
       <> "): "
 
     promptly.new(prompt)
-    |> promptly.int
+    |> promptly.as_int
     |> promptly.with_validator(fn(a) { a >= lower && a < upper })
     |> promptly.prompt
   }
@@ -45,7 +45,7 @@ pub fn int_example() {
 pub fn float_example() {
   fn() {
     promptly.new("Give me a non-zero float: ")
-    |> promptly.float
+    |> promptly.as_float
     |> promptly.with_validator(fn(a) { a != 0.0 })
     |> promptly.prompt
   }

@@ -21,11 +21,11 @@ pub fn new_internal(
   Prompt(operation)
 }
 
-pub fn int(prompt: Prompt(String)) -> Prompt(Int) {
+pub fn as_int(prompt: Prompt(String)) -> Prompt(Int) {
   to_number(prompt, int.parse)
 }
 
-pub fn float(prompt: Prompt(String)) -> Prompt(Float) {
+pub fn as_float(prompt: Prompt(String)) -> Prompt(Float) {
   to_number(prompt, float.parse)
 }
 
