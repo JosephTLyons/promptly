@@ -1,10 +1,8 @@
 import gleam/int
 import gleam/list
-import gleam/option.{None, Some}
-import gleam/regexp
-import gleam/result
 import gleam/string
 import promptly
+import promptly/utils
 
 // The examples in this module ensure we don't break parts of the public API
 // that are intentionally **NOT** tested, such as `new()`, as it would block
@@ -53,35 +51,12 @@ pub fn float_example() {
   }
 }
 
-pub type Date {
-  Date(day: Int, month: Int, year: Int)
-}
-
 pub fn map_validator_example() {
   fn() {
-    let to_date_validator = fn(text) {
-      let assert Ok(re) = regexp.from_string("(\\d{2})/(\\d{2})/(\\d{4})")
-      case regexp.scan(re, text) {
-        [match] -> {
-          case match.submatches |> option.all {
-            Some(submatches) -> {
-              let date_components =
-                submatches |> list.map(int.parse) |> result.all
-              case date_components {
-                Ok([day, month, year]) -> Ok(Date(day:, month:, year:))
-                _ -> Error(Nil)
-              }
-            }
-            None -> Error(Nil)
-          }
-        }
-        _ -> Error(Nil)
-      }
-    }
-
+    let to_date_validator = utils.to_date_validator()
     echo promptly.new("Give me a date (default: 01/01/1970): ")
       |> promptly.with_map_validator(to_date_validator)
-      |> promptly.with_default(Date(day: 1, month: 1, year: 1970))
+      |> promptly.with_default(utils.Date(month: 1, day: 1, year: 1970))
       |> promptly.prompt
   }
 }
