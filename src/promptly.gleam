@@ -38,12 +38,13 @@ fn to_number(
 }
 
 pub fn with_validator(prompt: Prompt(a), validator: fn(a) -> Bool) -> Prompt(a) {
-  with_map_validator(prompt, fn(value) {
+  let map_validator = fn(value) {
     case validator(value) {
       True -> Ok(value)
       False -> Error(Nil)
     }
-  })
+  }
+  with_map_validator(prompt, map_validator)
 }
 
 pub fn with_map_validator(
