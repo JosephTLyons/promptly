@@ -10,7 +10,7 @@ pub fn main() -> Nil {
   gleeunit.main()
 }
 
-pub fn promptly_text_test() {
+pub fn text_test() {
   let result_returning_function =
     result_returning_function(results: ["Dog", "Bear", "I'm a Mongoose!", "Cat"])
 
@@ -21,7 +21,7 @@ pub fn promptly_text_test() {
   |> should.equal("Dog")
 }
 
-pub fn promptly_text_with_validation_test() {
+pub fn text_with_validation_test() {
   let result_returning_function =
     result_returning_function(results: ["Dog", "Bear", "I'm a Mongoose!", "Cat"])
 
@@ -33,7 +33,7 @@ pub fn promptly_text_with_validation_test() {
   |> should.equal("I'm a Mongoose!")
 }
 
-pub fn promptly_text_with_map_validation_test() {
+pub fn text_with_map_validation_test() {
   let result_returning_function =
     result_returning_function(results: [
       "It's in April", "My birthday is 04/12/1990",
@@ -54,7 +54,7 @@ pub fn promptly_text_with_map_validation_test() {
   |> should.equal("04/12/1990")
 }
 
-pub fn promptly_int_test() {
+pub fn int_test() {
   let result_returning_function =
     result_returning_function(results: ["Hey", "There", "100", "2"])
 
@@ -66,7 +66,7 @@ pub fn promptly_int_test() {
   |> should.equal(100)
 }
 
-pub fn promptly_int_with_validation_test() {
+pub fn int_with_validation_test() {
   let result_returning_function =
     result_returning_function(results: ["0", "2", "3", "4"])
 
@@ -79,7 +79,7 @@ pub fn promptly_int_with_validation_test() {
   |> should.equal(3)
 }
 
-pub fn promptly_float_test() {
+pub fn float_test() {
   let result_returning_function =
     result_returning_function(results: ["Dog", "1", "0.0", "3.14"])
 
@@ -91,7 +91,7 @@ pub fn promptly_float_test() {
   |> should.equal(0.0)
 }
 
-pub fn promptly_float_with_validation_test() {
+pub fn float_with_validation_test() {
   let result_returning_function =
     result_returning_function(results: ["Dog", "1", "0.0", "3.14"])
 
@@ -104,7 +104,7 @@ pub fn promptly_float_with_validation_test() {
   |> should.equal(3.14)
 }
 
-pub fn promptly_int_with_map_to_different_type_validator_test() {
+pub fn int_with_map_to_different_type_validator_test() {
   let result_returning_function =
     result_returning_function(results: ["Dog", "2", "0.0", "3.14"])
 
