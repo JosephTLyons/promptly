@@ -1,23 +1,36 @@
 import gleam/float
 import gleam/int
 import gleam/result
-import input
+import promptly/internal/user_input.{type InputStatus, NotProvided, Provided}
+
+// TODO: Document public functions
+// TODO: Argument labels of public functions?
+// TODO: README.md
+// TODO: gleam.toml
+// TODO: Publish
+
+// Try using yielder to mock user input and avoid polluting everything with amount
+// Custom error messages?
+// Example with birthday.
+//    - Start simple,
+//    - Add validator,
+//    - Add default
 
 pub opaque type Prompt(a) {
-  Prompt(operation: fn(Int) -> Result(a, Nil))
+  Prompt(operation: fn(Int) -> #(Result(a, Nil), InputStatus))
 }
 
 pub fn new(text: String) -> Prompt(String) {
-  let operation = fn(text, _) { input.input(text) }
+  let operation = fn(text, _) { user_input.input(text) }
   new_internal(text, operation)
 }
 
 @internal
 pub fn new_internal(
   text: String,
-  operation: fn(String, Int) -> Result(String, Nil),
+  operation: fn(String, Int) -> #(Result(String, Nil), InputStatus),
 ) -> Prompt(String) {
-  let operation = operation(text, _)
+  let operation = fn(attempt) { operation(text, attempt) }
   Prompt(operation)
 }
 
@@ -33,16 +46,22 @@ fn to_number(
   prompt: Prompt(String),
   parse: fn(String) -> Result(a, Nil),
 ) -> Prompt(a) {
-  let operation = fn(attempt) { prompt.operation(attempt) |> result.try(parse) }
+  let operation = fn(attempt) {
+    let #(res, input) = prompt.operation(attempt)
+    let res = result.try(res, parse)
+    #(res, input)
+  }
   Prompt(operation)
 }
 
-pub fn with_default(prompt: Prompt(String), default: String) -> Prompt(String) {
+pub fn with_default(prompt: Prompt(a), default: a) -> Prompt(a) {
   let operation = fn(attempt) {
-    case prompt.operation(attempt) {
-      Ok("") -> Ok(default)
-      text -> text
+    let #(res, input) = prompt.operation(attempt)
+    let res = case input {
+      NotProvided -> Ok(default)
+      Provided -> res
     }
+    #(res, input)
   }
   Prompt(operation)
 }
@@ -62,7 +81,9 @@ pub fn with_map_validator(
   map_validator: fn(a) -> Result(b, Nil),
 ) -> Prompt(b) {
   let operation = fn(attempt) {
-    prompt.operation(attempt) |> result.try(map_validator)
+    let #(res, input) = prompt.operation(attempt)
+    let res = result.try(res, map_validator)
+    #(res, input)
   }
   Prompt(operation)
 }
@@ -72,7 +93,9 @@ pub fn prompt(prompt: Prompt(a)) {
 }
 
 fn prompt_loop(prompt: Prompt(a), attempt: Int) -> a {
-  case prompt.operation(attempt) {
+  let #(result, _) = prompt.operation(attempt)
+
+  case result {
     Ok(value) -> value
     Error(_) -> prompt_loop(prompt, attempt + 1)
   }

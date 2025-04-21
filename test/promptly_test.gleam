@@ -1,10 +1,10 @@
 import gleam/int
-import gleam/option.{type Option, None, Some}
 import gleam/regexp
 import gleam/string
 import gleeunit
 import gleeunit/should
 import promptly
+import promptly/internal/user_input.{type InputStatus}
 
 pub fn main() -> Nil {
   gleeunit.main()
@@ -122,14 +122,40 @@ pub fn int_with_map_to_different_type_validator_test() {
   |> should.equal("b")
 }
 
+pub fn text_with_default_and_no_input_test() {
+  let result_returning_function = result_returning_function(results: [""])
+  let default = "Hello, World"
+
+  promptly.new_internal(
+    "Give me any text (default: \"" <> default <> "\"): ",
+    fn(_, attempt) { result_returning_function(attempt) },
+  )
+  |> promptly.with_default(default)
+  |> promptly.prompt
+  |> should.equal(default)
+}
+
+pub fn text_with_default_and_input_test() {
+  let result_returning_function = result_returning_function(results: ["Hey"])
+  let default = "Hello, World"
+
+  promptly.new_internal(
+    "Give me any text (default: \"" <> default <> "\"): ",
+    fn(_, attempt) { result_returning_function(attempt) },
+  )
+  |> promptly.with_default("Hello, World")
+  |> promptly.prompt
+  |> should.equal("Hey")
+}
+
 pub fn int_with_default_and_no_input_test() {
   let result_returning_function = result_returning_function(results: [""])
 
-  promptly.new_internal("Give me any int (default 0): ", fn(_, attempt) {
+  promptly.new_internal("Give me any int (default: 0): ", fn(_, attempt) {
     result_returning_function(attempt)
   })
-  |> promptly.with_default("0")
   |> promptly.as_int
+  |> promptly.with_default(0)
   |> promptly.prompt
   |> should.equal(0)
 }
@@ -137,33 +163,65 @@ pub fn int_with_default_and_no_input_test() {
 pub fn int_with_default_and_input_test() {
   let result_returning_function = result_returning_function(results: ["1"])
 
-  promptly.new_internal("Give me any int (default 0): ", fn(_, attempt) {
+  promptly.new_internal("Give me any int (default: 0): ", fn(_, attempt) {
     result_returning_function(attempt)
   })
-  |> promptly.with_default("0")
   |> promptly.as_int
+  |> promptly.with_default(0)
+  |> promptly.prompt
+  |> should.equal(1)
+}
+
+pub fn int_with_default_and_bad_input_and_then_no_input_test() {
+  // Don't use default with bad input, this should prompt user again
+  // Only use default with no input
+  let result_returning_function =
+    result_returning_function(results: ["dog", ""])
+
+  promptly.new_internal("Give me any int (default: 0): ", fn(_, attempt) {
+    result_returning_function(attempt)
+  })
+  |> promptly.as_int
+  |> promptly.with_default(0)
+  |> promptly.prompt
+  |> should.equal(0)
+}
+
+pub fn int_with_default_and_bad_input_and_then_good_input_test() {
+  // Don't use default with bad input, this should prompt user again
+  // Second input is good, use that
+  let result_returning_function =
+    result_returning_function(results: ["dog", "1"])
+
+  promptly.new_internal("Give me any int (default: 0): ", fn(_, attempt) {
+    result_returning_function(attempt)
+  })
+  |> promptly.as_int
+  |> promptly.with_default(0)
   |> promptly.prompt
   |> should.equal(1)
 }
 
 fn result_returning_function(
-  results results: List(a),
-) -> fn(Int) -> Result(a, b) {
+  results results: List(String),
+) -> fn(Int) -> #(Result(String, Nil), InputStatus) {
   fn(attempt) {
-    let assert Some(result) = results |> at(index: attempt)
-    Ok(result)
+    let assert Ok(input) = at(results, index: attempt)
+    user_input.input_internal(input, Ok)
   }
 }
 
-fn at(items items: List(a), index index: Int) -> Option(a) {
+fn at(items items: List(a), index index: Int) -> Result(a, Nil) {
   do_at(items:, index:)
 }
 
-fn do_at(items items: List(a), index index: Int) -> Option(a) {
+fn do_at(items items: List(a), index index: Int) -> Result(a, Nil) {
   case items, index {
-    _, index if index < 0 -> None
+    _, index if index < 0 -> Error(Nil)
     [_, ..rest], index if index > 0 -> do_at(items: rest, index: index - 1)
-    [item, ..], _ -> Some(item)
-    [], _ -> None
+    [item, ..], _ -> Ok(item)
+    [], _ -> Error(Nil)
   }
 }
+// TODO: Break up into int, float, and text test modules
+// TODD: Clean up tests and add a test for each kind of int, float, and text
