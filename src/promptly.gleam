@@ -7,17 +7,17 @@ pub opaque type Prompt(a) {
   Prompt(operation: fn(Int) -> Result(a, Nil))
 }
 
-pub fn new(prompt: String) -> Prompt(String) {
+pub fn new(text: String) -> Prompt(String) {
   let operation = fn(text, _) { input.input(text) }
-  new_internal(prompt, operation)
+  new_internal(text, operation)
 }
 
 @internal
 pub fn new_internal(
-  prompt: String,
+  text: String,
   operation: fn(String, Int) -> Result(String, Nil),
 ) -> Prompt(String) {
-  let operation = operation(prompt, _)
+  let operation = operation(text, _)
   Prompt(operation)
 }
 
