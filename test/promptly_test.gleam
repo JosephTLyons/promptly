@@ -215,6 +215,19 @@ pub fn multiple_with_defaults_test() {
   |> should.equal("Hey")
 }
 
+// Super duper edge case - but should probably fix this at some point
+// pub fn multiple_with_defaults_with_not_provided_as_initial_default_test() {
+//   let result_returning_function = result_returning_function(results: [""])
+
+//   promptly.new_internal("Give me any text: ", fn(_, attempt) {
+//     result_returning_function(attempt)
+//   })
+//   |> promptly.with_default("")
+//   |> promptly.with_default("Man")
+//   |> promptly.prompt
+//   |> should.equal("Man")
+// }
+
 pub fn date_uses_default_test() {
   let result_returning_function = result_returning_function(results: [""])
   let to_date_validator = utils.to_date_validator()
