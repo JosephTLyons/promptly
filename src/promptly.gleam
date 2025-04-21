@@ -51,16 +51,7 @@ pub fn with_map_validator(
   map_validator: fn(a) -> Result(b, Nil),
 ) -> Prompt(b) {
   let operation = fn(attempt) {
-    let operation = prompt.operation(attempt)
-    case operation {
-      Ok(input) -> {
-        case map_validator(input) {
-          Ok(input) -> Ok(input)
-          Error(_) -> Error(Nil)
-        }
-      }
-      Error(_) -> Error(Nil)
-    }
+    prompt.operation(attempt) |> result.try(map_validator)
   }
   Prompt(operation)
 }
