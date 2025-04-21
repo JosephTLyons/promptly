@@ -61,8 +61,7 @@ pub fn prompt(prompt: Prompt(a)) {
   prompt_internal(prompt, 0)
 }
 
-@internal
-pub fn prompt_internal(prompt: Prompt(a), attempt: Int) -> a {
+fn prompt_internal(prompt: Prompt(a), attempt: Int) -> a {
   case prompt.operation(attempt) {
     Ok(value) -> value
     Error(_) -> prompt_internal(prompt, attempt + 1)
