@@ -8,7 +8,7 @@ pub opaque type Prompt(a) {
   Prompt(operation: fn(String, Int) -> #(Result(a, String), InputStatus))
 }
 
-/// Entry point for starting to define a new prompt.
+/// Used to begin building a new prompt pipeline.
 pub fn new() -> Prompt(String) {
   let operation = fn(text, _) { user_input.input(text) }
   new_internal(operation)
