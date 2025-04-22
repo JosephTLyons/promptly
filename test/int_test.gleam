@@ -98,3 +98,47 @@ pub fn int_with_default_and_bad_input_and_then_good_input_test() {
   ))
   |> should.equal(1)
 }
+
+pub fn int_try_prompt_fail_test() {
+  let input = 11
+  let input_string = int.to_string(input)
+  let result_returning_function =
+    result_returning_function(results: [input_string])
+  let error_message = "\"" <> input_string <> "\" was greater than 10!"
+
+  promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
+  |> promptly.as_int(fn(_) { "Could not parse to Int." })
+  |> promptly.with_default(0)
+  |> promptly.with_validator(fn(a) {
+    case a <= 10 {
+      True -> Ok(a)
+      False -> Error(error_message)
+    }
+  })
+  |> promptly.try_prompt(promptly.default_formatter(
+    "Give me any int (default: 0): ",
+  ))
+  |> should.equal(Error(error_message))
+}
+
+pub fn int_try_prompt_succeed_test() {
+  let input = 1
+  let input_string = int.to_string(input)
+  let result_returning_function =
+    result_returning_function(results: [input_string])
+  let error_message = "\"" <> input_string <> "\" was greater than 10!"
+
+  promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
+  |> promptly.as_int(fn(_) { "Could not parse to Int." })
+  |> promptly.with_default(0)
+  |> promptly.with_validator(fn(a) {
+    case a <= 10 {
+      True -> Ok(a)
+      False -> Error(error_message)
+    }
+  })
+  |> promptly.try_prompt(promptly.default_formatter(
+    "Give me any int (default: 0): ",
+  ))
+  |> should.equal(Ok(input))
+}

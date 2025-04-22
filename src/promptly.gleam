@@ -63,28 +63,40 @@ pub fn with_validator(
   Prompt(operation)
 }
 
-pub fn prompt(
-  prompt: Prompt(a),
-  prompt_formatter: fn(Option(String)) -> String,
-) -> a {
-  prompt_loop(prompt, prompt_formatter, None, 0)
+pub fn prompt(prompt: Prompt(a), formatter: fn(Option(String)) -> String) -> a {
+  prompt_loop(prompt, formatter, None, 0)
 }
 
 fn prompt_loop(
   prompt: Prompt(a),
-  prompt_formatter: fn(Option(String)) -> String,
-  last_error: Option(String),
+  formatter: fn(Option(String)) -> String,
+  previous_error: Option(String),
   attempt: Int,
 ) -> a {
-  let prompt_string = prompt_formatter(last_error)
-  let #(result, _) = prompt.operation(prompt_string, attempt)
-
-  case result {
+  case try_prompt_internal(prompt, formatter, previous_error, attempt) {
     Ok(value) -> value
     Error(error) -> {
-      prompt_loop(prompt, prompt_formatter, Some(error), attempt + 1)
+      prompt_loop(prompt, formatter, Some(error), attempt + 1)
     }
   }
+}
+
+pub fn try_prompt(
+  prompt: Prompt(a),
+  formatter: fn(Option(String)) -> String,
+) -> Result(a, String) {
+  try_prompt_internal(prompt, formatter, None, 0)
+}
+
+fn try_prompt_internal(
+  prompt: Prompt(a),
+  formatter: fn(Option(String)) -> String,
+  previous_error: Option(String),
+  attempt: Int,
+) -> Result(a, String) {
+  let prompt_string = formatter(previous_error)
+  let #(result, _) = prompt.operation(prompt_string, attempt)
+  result
 }
 
 pub fn default_formatter(prompt: String) -> fn(Option(String)) -> String {
