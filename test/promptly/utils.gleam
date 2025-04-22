@@ -33,7 +33,7 @@ pub type Date {
 
 pub fn to_date_validator() -> fn(String) -> Result(Date, String) {
   fn(text) {
-    let error = "Could not convert to Date."
+    let error = "Could not convert \"" <> text <> "\" to Date."
     let assert Ok(re) = regexp.from_string("(\\d{2})/(\\d{2})/(\\d{4})")
     case regexp.scan(re, text) {
       [match] -> {
