@@ -1,7 +1,7 @@
 import gleam/int
 import gleeunit/should
 import promptly
-import promptly/utils.{result_returning_function}
+import promptly/utils.{default_formatter, result_returning_function}
 
 pub fn int_test() {
   let result_returning_function =
@@ -9,7 +9,7 @@ pub fn int_test() {
 
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
-  |> promptly.prompt(promptly.default_formatter("Give me any int: "))
+  |> promptly.prompt(default_formatter("Give me any int: "))
   |> should.equal(100)
 }
 
@@ -25,7 +25,7 @@ pub fn int_with_validation_test() {
       False -> Error("Was even.")
     }
   })
-  |> promptly.prompt(promptly.default_formatter("Give me an odd int: "))
+  |> promptly.prompt(default_formatter("Give me an odd int: "))
   |> should.equal(3)
 }
 
@@ -41,7 +41,7 @@ pub fn int_with_map_to_different_type_validator_test() {
       _ -> Ok("b")
     }
   })
-  |> promptly.prompt(promptly.default_formatter("Give me any non-zero float: "))
+  |> promptly.prompt(default_formatter("Give me any non-zero float: "))
   |> should.equal("b")
 }
 
@@ -51,9 +51,7 @@ pub fn int_with_default_and_no_input_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
   |> promptly.with_default(0)
-  |> promptly.prompt(promptly.default_formatter(
-    "Give me any int (default: 0): ",
-  ))
+  |> promptly.prompt(default_formatter("Give me any int (default: 0): "))
   |> should.equal(0)
 }
 
@@ -63,9 +61,7 @@ pub fn int_with_default_and_input_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
   |> promptly.with_default(0)
-  |> promptly.prompt(promptly.default_formatter(
-    "Give me any int (default: 0): ",
-  ))
+  |> promptly.prompt(default_formatter("Give me any int (default: 0): "))
   |> should.equal(1)
 }
 
@@ -78,9 +74,7 @@ pub fn int_with_default_and_bad_input_and_then_no_input_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
   |> promptly.with_default(0)
-  |> promptly.prompt(promptly.default_formatter(
-    "Give me any int (default: 0): ",
-  ))
+  |> promptly.prompt(default_formatter("Give me any int (default: 0): "))
   |> should.equal(0)
 }
 
@@ -93,9 +87,7 @@ pub fn int_with_default_and_bad_input_and_then_good_input_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
   |> promptly.with_default(0)
-  |> promptly.prompt(promptly.default_formatter(
-    "Give me any int (default: 0): ",
-  ))
+  |> promptly.prompt(default_formatter("Give me any int (default: 0): "))
   |> should.equal(1)
 }
 
@@ -115,9 +107,7 @@ pub fn int_try_prompt_fail_test() {
       False -> Error(error_message)
     }
   })
-  |> promptly.try_prompt(promptly.default_formatter(
-    "Give me any int (default: 0): ",
-  ))
+  |> promptly.try_prompt(default_formatter("Give me any int (default: 0): "))
   |> should.equal(Error(error_message))
 }
 
@@ -137,8 +127,6 @@ pub fn int_try_prompt_succeed_test() {
       False -> Error(error_message)
     }
   })
-  |> promptly.try_prompt(promptly.default_formatter(
-    "Give me any int (default: 0): ",
-  ))
+  |> promptly.try_prompt(default_formatter("Give me any int (default: 0): "))
   |> should.equal(Ok(input))
 }

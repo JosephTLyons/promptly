@@ -72,7 +72,7 @@ pub fn with_validator(
 }
 
 /// Starts a prompt loop. Accepts a formatter function to define how to print the prompt.
-/// Supply a custom formatter function to define how your prompt and errors should be printed, or use `default_formatter`.
+/// Supply a custom formatter function to define how your prompt and errors should be printed.
 /// The formatter's input is an `Option(String)`, and is `Some` when an error was encountered.
 /// Raises errors defined in your pipeline and continuously prompts the user until correct data is provided.
 pub fn prompt(prompt: Prompt(a), formatter: fn(Option(String)) -> String) -> a {
@@ -111,14 +111,4 @@ fn try_prompt_internal(
   let prompt_string = formatter(previous_error)
   let #(result, _) = prompt.operation(prompt_string, attempt)
   result
-}
-
-/// Convenience method for building a prompt string.
-pub fn default_formatter(prompt: String) -> fn(Option(String)) -> String {
-  fn(error) {
-    case error {
-      Some(error) -> "Error: " <> error <> "\n" <> prompt
-      None -> prompt
-    }
-  }
 }

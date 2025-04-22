@@ -1,6 +1,6 @@
 import gleeunit/should
 import promptly
-import promptly/utils.{result_returning_function}
+import promptly/utils.{default_formatter, result_returning_function}
 
 pub fn multiple_with_defaults_test() {
   let result_returning_function = result_returning_function(results: [""])
@@ -8,7 +8,7 @@ pub fn multiple_with_defaults_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.with_default("Hey")
   |> promptly.with_default("Man")
-  |> promptly.prompt(promptly.default_formatter("Give me any text: "))
+  |> promptly.prompt(default_formatter("Give me any text: "))
   |> should.equal("Hey")
 }
 
@@ -33,9 +33,7 @@ pub fn date_uses_default_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.with_validator(to_date_validator)
   |> promptly.with_default(default)
-  |> promptly.prompt(promptly.default_formatter(
-    "Give me a date (default: 01/01/1970): ",
-  ))
+  |> promptly.prompt(default_formatter("Give me a date (default: 01/01/1970): "))
   |> should.equal(default)
 }
 
@@ -47,8 +45,6 @@ pub fn date_does_not_use_default_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.with_validator(to_date_validator)
   |> promptly.with_default(utils.Date(month: 1, day: 1, year: 1970))
-  |> promptly.prompt(promptly.default_formatter(
-    "Give me a date (default: 01/01/1970): ",
-  ))
+  |> promptly.prompt(default_formatter("Give me a date (default: 01/01/1970): "))
   |> should.equal(utils.Date(month: 4, day: 12, year: 1990))
 }

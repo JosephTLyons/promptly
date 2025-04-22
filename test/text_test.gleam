@@ -2,14 +2,14 @@ import gleam/regexp
 import gleam/string
 import gleeunit/should
 import promptly
-import promptly/utils.{result_returning_function}
+import promptly/utils.{default_formatter, result_returning_function}
 
 pub fn text_test() {
   let result_returning_function =
     result_returning_function(results: ["Dog", "Bear", "I'm a Mongoose!", "Cat"])
 
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
-  |> promptly.prompt(promptly.default_formatter("Give me some text: "))
+  |> promptly.prompt(default_formatter("Give me some text: "))
   |> should.equal("Dog")
 }
 
@@ -24,7 +24,7 @@ pub fn text_with_validation_test() {
       False -> Error("String length was >= 10.")
     }
   })
-  |> promptly.prompt(promptly.default_formatter("Give me long text: "))
+  |> promptly.prompt(default_formatter("Give me long text: "))
   |> should.equal("I'm a Mongoose!")
 }
 
@@ -43,9 +43,7 @@ pub fn text_with_map_validation_test() {
   }
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.with_validator(validator)
-  |> promptly.prompt(promptly.default_formatter(
-    "When is your birthday (dd/mm/yyyy): ",
-  ))
+  |> promptly.prompt(default_formatter("When is your birthday (dd/mm/yyyy): "))
   |> should.equal("04/12/1990")
 }
 
@@ -55,7 +53,7 @@ pub fn text_with_default_and_no_input_test() {
 
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.with_default(default)
-  |> promptly.prompt(promptly.default_formatter(
+  |> promptly.prompt(default_formatter(
     "Give me any text (default: \"" <> default <> "\"): ",
   ))
   |> should.equal(default)
@@ -67,7 +65,7 @@ pub fn text_with_default_and_input_test() {
 
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.with_default("Hello, World")
-  |> promptly.prompt(promptly.default_formatter(
+  |> promptly.prompt(default_formatter(
     "Give me any text (default: \"" <> default <> "\"): ",
   ))
   |> should.equal("Hey")

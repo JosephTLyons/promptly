@@ -1,6 +1,6 @@
 import gleam/int
 import gleam/list
-import gleam/option.{None, Some}
+import gleam/option.{type Option, None, Some}
 import gleam/regexp
 import gleam/result
 import promptly/internal/user_input.{type InputStatus}
@@ -50,6 +50,15 @@ pub fn to_date_validator() -> fn(String) -> Result(Date, String) {
         }
       }
       _ -> Error(error)
+    }
+  }
+}
+
+pub fn default_formatter(prompt: String) -> fn(Option(String)) -> String {
+  fn(error) {
+    case error {
+      Some(error) -> "Error: " <> error <> "\n" <> prompt
+      None -> prompt
     }
   }
 }

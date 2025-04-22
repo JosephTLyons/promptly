@@ -3,7 +3,7 @@ import gleam/io
 import gleam/list
 import gleam/string
 import promptly
-import promptly/utils
+import promptly/utils.{default_formatter}
 
 // The examples in this module ensure we don't break parts of the public API
 // that are intentionally **NOT** tested, such as `new()`, as it would block
@@ -26,7 +26,7 @@ pub fn text_example() {
 
     promptly.new()
     |> promptly.with_validator(validator)
-    |> promptly.prompt(promptly.default_formatter(prompt))
+    |> promptly.prompt(default_formatter(prompt))
   }
 }
 
@@ -49,7 +49,7 @@ pub fn int_example() {
         False -> Error("Isn't in range.")
       }
     })
-    |> promptly.prompt(promptly.default_formatter(prompt))
+    |> promptly.prompt(default_formatter(prompt))
   }
 }
 
@@ -63,7 +63,7 @@ pub fn float_example() {
         False -> Error("Wasn't a non-zero float.")
       }
     })
-    |> promptly.prompt(promptly.default_formatter("Give me a non-zero float: "))
+    |> promptly.prompt(default_formatter("Give me a non-zero float: "))
   }
 }
 
@@ -73,7 +73,7 @@ pub fn validator_example() {
     promptly.new()
     |> promptly.with_validator(to_date_validator)
     |> promptly.with_default(utils.Date(month: 1, day: 1, year: 1970))
-    |> promptly.prompt(promptly.default_formatter(
+    |> promptly.prompt(default_formatter(
       "Give me a date (default: 01/01/1970): ",
     ))
   }
