@@ -3,19 +3,6 @@ import gleam/int
 import gleam/result
 import promptly/internal/user_input.{type InputStatus, NotProvided, Provided}
 
-// TODO: Document public functions
-// TODO: Argument labels of public functions?
-// TODO: README.md
-// TODO: gleam.toml
-// TODO: Publish
-
-// Try using yielder to mock user input and avoid polluting everything with amount
-// Custom error messages?
-// Example with birthday.
-//    - Start simple,
-//    - Add validator,
-//    - Add default
-
 pub opaque type Prompt(a) {
   Prompt(operation: fn(Int) -> #(Result(a, Nil), InputStatus))
 }
