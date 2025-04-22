@@ -7,7 +7,7 @@ import promptly/internal/user_input.{type InputStatus}
 
 pub fn result_returning_function(
   results results: List(String),
-) -> fn(Int) -> #(Result(String, Nil), InputStatus) {
+) -> fn(Int) -> #(Result(String, String), InputStatus) {
   fn(attempt) {
     let assert Ok(input) = at(results, index: attempt)
     user_input.input_internal(input, Ok)
@@ -31,8 +31,9 @@ pub type Date {
   Date(month: Int, day: Int, year: Int)
 }
 
-pub fn to_date_validator() {
+pub fn to_date_validator() -> fn(String) -> Result(Date, String) {
   fn(text) {
+    let error = "Could not convert to Date."
     let assert Ok(re) = regexp.from_string("(\\d{2})/(\\d{2})/(\\d{4})")
     case regexp.scan(re, text) {
       [match] -> {
@@ -42,13 +43,13 @@ pub fn to_date_validator() {
               submatches |> list.map(int.parse) |> result.all
             case date_components {
               Ok([month, day, year]) -> Ok(Date(month:, day:, year:))
-              _ -> Error(Nil)
+              _ -> Error(error)
             }
           }
-          None -> Error(Nil)
+          None -> Error(error)
         }
       }
-      _ -> Error(Nil)
+      _ -> Error(error)
     }
   }
 }

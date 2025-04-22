@@ -5,8 +5,6 @@ gleam.toml
 Publish
 
 Try using yielder to mock user input and avoid polluting everything with amount
-Custom error messages?
-   - with prompt_formatter function
 Example with birthday.
    - Start simple,
    - Add validator,
@@ -15,3 +13,4 @@ Example with birthday.
 Mode (repeat or single shot)
 Clean up tests and add a test for each kind of int, float, and text
 with_default - bug fix, rework to a cleaner solution
+clean up shorthand variable names (a)
