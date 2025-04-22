@@ -15,7 +15,7 @@ pub fn input_internal(
   input_function: fn(String) -> Result(String, Nil),
 ) -> #(Result(String, String), InputStatus) {
   let input =
-    input_function(text) |> result.replace_error("Failed to get user input.")
+    text |> input_function |> result.replace_error("Failed to get user input.")
   let input_status = case input {
     Ok("") -> NotProvided
     Error(_) -> NotProvided

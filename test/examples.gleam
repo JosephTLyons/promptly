@@ -13,13 +13,13 @@ pub fn text_example() {
     let option_text = string.join(options, ", ")
     let prompt = "Who is my best friend? [" <> option_text <> "]: "
 
-    let validator = fn(a) {
-      let lower = string.lowercase(a)
+    let validator = fn(text) {
+      let lower = string.lowercase(text)
       let is_valid_option =
         options |> list.map(string.lowercase) |> list.contains(lower)
       case is_valid_option {
-        True -> Ok(a)
-        False -> Error("\"" <> a <> "\" isn't a valid option.")
+        True -> Ok(text)
+        False -> Error("\"" <> text <> "\" isn't a valid option.")
       }
     }
 
@@ -42,9 +42,9 @@ pub fn int_example() {
 
     promptly.new()
     |> promptly.as_int(fn(_) { "Could not parse to Int." })
-    |> promptly.with_validator(fn(a) {
-      case a >= lower && a < upper {
-        True -> Ok(a)
+    |> promptly.with_validator(fn(x) {
+      case x >= lower && x < upper {
+        True -> Ok(x)
         False -> Error("Isn't in range.")
       }
     })
@@ -56,9 +56,9 @@ pub fn float_example() {
   fn() {
     promptly.new()
     |> promptly.as_float(fn(_) { "Could not parse to Float." })
-    |> promptly.with_validator(fn(a) {
-      case a != 0.0 {
-        True -> Ok(a)
+    |> promptly.with_validator(fn(x) {
+      case x != 0.0 {
+        True -> Ok(x)
         False -> Error("Wasn't a non-zero float.")
       }
     })

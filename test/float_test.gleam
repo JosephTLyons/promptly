@@ -18,9 +18,9 @@ pub fn float_with_validation_test() {
 
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_float(fn(_) { "Could not parse to Float." })
-  |> promptly.with_validator(fn(value) {
-    case value != 0.0 {
-      True -> Ok(value)
+  |> promptly.with_validator(fn(x) {
+    case x != 0.0 {
+      True -> Ok(x)
       False -> Error("Wasn't a non-zero float.")
     }
   })

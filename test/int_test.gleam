@@ -19,9 +19,9 @@ pub fn int_with_validation_test() {
 
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
-  |> promptly.with_validator(fn(value) {
-    case int.is_odd(value) {
-      True -> Ok(value)
+  |> promptly.with_validator(fn(x) {
+    case int.is_odd(x) {
+      True -> Ok(x)
       False -> Error("Was even.")
     }
   })
@@ -35,8 +35,8 @@ pub fn int_with_map_to_different_type_validator_test() {
 
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
-  |> promptly.with_validator(fn(value) {
-    case value {
+  |> promptly.with_validator(fn(x) {
+    case x {
       1 -> Ok("a")
       _ -> Ok("b")
     }
@@ -109,9 +109,9 @@ pub fn int_try_prompt_fail_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
   |> promptly.with_default(0)
-  |> promptly.with_validator(fn(a) {
-    case a <= 10 {
-      True -> Ok(a)
+  |> promptly.with_validator(fn(x) {
+    case x <= 10 {
+      True -> Ok(x)
       False -> Error(error_message)
     }
   })
@@ -131,9 +131,9 @@ pub fn int_try_prompt_succeed_test() {
   promptly.new_internal(fn(_, attempt) { result_returning_function(attempt) })
   |> promptly.as_int(fn(_) { "Could not parse to Int." })
   |> promptly.with_default(0)
-  |> promptly.with_validator(fn(a) {
-    case a <= 10 {
-      True -> Ok(a)
+  |> promptly.with_validator(fn(x) {
+    case x <= 10 {
+      True -> Ok(x)
       False -> Error(error_message)
     }
   })

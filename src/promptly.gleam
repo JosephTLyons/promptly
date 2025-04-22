@@ -25,8 +25,8 @@ pub fn as_int(
   prompt: Prompt(String),
   error: fn(String) -> String,
 ) -> Prompt(Int) {
-  with_validator(prompt, fn(value) {
-    value |> int.parse |> result.replace_error(error(value))
+  with_validator(prompt, fn(text) {
+    text |> int.parse |> result.replace_error(error(text))
   })
 }
 
@@ -34,8 +34,8 @@ pub fn as_float(
   prompt: Prompt(String),
   error: fn(String) -> String,
 ) -> Prompt(Float) {
-  with_validator(prompt, fn(value) {
-    value |> float.parse |> result.replace_error(error(value))
+  with_validator(prompt, fn(text) {
+    text |> float.parse |> result.replace_error(error(text))
   })
 }
 
