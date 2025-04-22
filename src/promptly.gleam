@@ -8,6 +8,7 @@ pub opaque type Prompt(a) {
   Prompt(operation: fn(String, Int) -> #(Result(a, String), InputStatus))
 }
 
+/// Entry point for starting to define a new prompt.
 pub fn new() -> Prompt(String) {
   let operation = fn(text, _) { user_input.input(text) }
   new_internal(operation)
@@ -21,6 +22,9 @@ pub fn new_internal(
   Prompt(operation)
 }
 
+/// A convenience function for attempting to convert text input into an integer.
+/// Use `with_validator()` for more control over input manipulation and to verify data.
+/// Accepts a function whose input receives the value the user provided, for designing your own error messages.
 pub fn as_int(
   prompt: Prompt(String),
   error: fn(String) -> String,
@@ -30,6 +34,7 @@ pub fn as_int(
   })
 }
 
+/// Same as `as_int()`, but for float values.
 pub fn as_float(
   prompt: Prompt(String),
   error: fn(String) -> String,
@@ -39,6 +44,7 @@ pub fn as_float(
   })
 }
 
+/// Allows you to provide a default value when the user inputs an empty string: `""`.
 pub fn with_default(prompt: Prompt(a), default: a) -> Prompt(a) {
   let operation = fn(text, attempt) {
     let #(res, input) = prompt.operation(text, attempt)
@@ -51,6 +57,8 @@ pub fn with_default(prompt: Prompt(a), default: a) -> Prompt(a) {
   Prompt(operation)
 }
 
+/// Allows you to control which data is valid or not, as well as map input data to any value.
+/// The validator function should return a result with valid data as `Ok` and error strings as `Error`.
 pub fn with_validator(
   prompt: Prompt(a),
   validator: fn(a) -> Result(b, String),
@@ -63,6 +71,10 @@ pub fn with_validator(
   Prompt(operation)
 }
 
+/// Starts a prompt loop. Accepts a formatter function to define how to print the prompt.
+/// Supply a custom formatter function to define how your prompt and errors should be printed, or use `default_formatter`.
+/// The formatter's input is an `Option(String)`, and is `Some` when an error was encountered.
+/// Raises errors defined in your pipeline and continuously prompts the user until correct data is provided.
 pub fn prompt(prompt: Prompt(a), formatter: fn(Option(String)) -> String) -> a {
   prompt_loop(prompt, formatter, None, 0)
 }
@@ -81,6 +93,8 @@ fn prompt_loop(
   }
 }
 
+/// Same as `prompt()`, except that it only prompts the user once and returns a result.
+/// Useful for defining your own prompt loop logic.
 pub fn try_prompt(
   prompt: Prompt(a),
   formatter: fn(Option(String)) -> String,
@@ -99,6 +113,7 @@ fn try_prompt_internal(
   result
 }
 
+/// Convenience method for building a prompt string.
 pub fn default_formatter(prompt: String) -> fn(Option(String)) -> String {
   fn(error) {
     case error {

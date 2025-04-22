@@ -1,4 +1,5 @@
 import gleam/int
+import gleam/io
 import gleam/list
 import gleam/string
 import promptly
@@ -75,5 +76,12 @@ pub fn validator_example() {
     |> promptly.prompt(promptly.default_formatter(
       "Give me a date (default: 01/01/1970): ",
     ))
+  }
+}
+
+pub fn simple_example() {
+  fn() {
+    let name = promptly.new() |> promptly.prompt(fn(_) { "Name: " })
+    io.println("Hello, " <> name)
   }
 }
