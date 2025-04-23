@@ -2,23 +2,25 @@ import gleam/float
 import gleam/int
 import gleam/option.{type Option, None, Some}
 import gleam/result
-import promptly/internal/user_input
+import input
 
-pub opaque type Prompt(a) {
-  Prompt(operation: fn(String, Int) -> Result(a, String))
+pub opaque type Prompt(a, b) {
+  Prompt(operation: fn(String, Int) -> Result(a, b))
 }
 
 /// Used to begin building a new prompt pipeline.
-pub fn new() -> Prompt(String) {
-  let operation = fn(text, _) { user_input.input(text) }
+pub fn new() -> Prompt(String, b) {
+  let operation = fn(text, _) {
+    // Find a way to handle this without breaking the generic types
+    let assert Ok(text) = input.input(text)
+    text
+  }
   new_internal(operation)
 }
 
 @internal
-pub fn new_internal(
-  operation: fn(String, Int) -> Result(String, String),
-) -> Prompt(String) {
-  let operation = fn(text, attempt) { operation(text, attempt) }
+pub fn new_internal(operation: fn(String, Int) -> String) -> Prompt(String, b) {
+  let operation = fn(text, attempt) { operation(text, attempt) |> Ok }
   Prompt(operation)
 }
 
@@ -26,47 +28,54 @@ pub fn new_internal(
 /// Use `with_validator()` for more control over input manipulation and to verify data.
 /// Accepts a function whose input receives the value the user provided, for designing your own error messages.
 pub fn as_int(
-  prompt: Prompt(String),
-  error: fn(String) -> String,
-) -> Prompt(Int) {
+  prompt: Prompt(String, b),
+  error: fn(String) -> b,
+) -> Prompt(Int, b) {
   with_validator(prompt, fn(text) {
-    text |> int.parse |> result.replace_error(error(text))
+    text
+    |> int.parse
+    |> result.replace_error(error(text))
   })
 }
 
 /// Same as `as_int()`, but for float values.
 pub fn as_float(
-  prompt: Prompt(String),
-  error: fn(String) -> String,
-) -> Prompt(Float) {
+  prompt: Prompt(String, b),
+  error: fn(String) -> b,
+) -> Prompt(Float, b) {
   with_validator(prompt, fn(text) {
-    text |> float.parse |> result.replace_error(error(text))
+    text
+    |> float.parse
+    |> result.replace_error(error(text))
   })
 }
 
 /// Allows you to provide a default value when the user inputs an empty string: `""`.
-pub fn with_default(prompt: Prompt(String), default: String) -> Prompt(String) {
-  let operation = fn(text, attempt) {
-    prompt.operation(text, attempt)
-    |> result.map(fn(text) {
-      case text, default {
-        "", "" -> text
-        "", default -> default
-        text, _ -> text
-      }
-    })
-  }
-  Prompt(operation)
+pub fn with_default(
+  prompt: Prompt(String, b),
+  default: String,
+) -> Prompt(String, b) {
+  with_validator(prompt, fn(text) {
+    case text, default {
+      "", "" -> Ok(text)
+      "", default -> Ok(default)
+      text, _ -> Ok(text)
+    }
+  })
 }
 
 /// Allows you to control which data is valid or not, as well as map input data to any value.
 /// The validator function should return a result with valid data as `Ok` and error strings as `Error`.
 pub fn with_validator(
-  prompt: Prompt(a),
-  validator: fn(a) -> Result(b, String),
-) -> Prompt(b) {
+  prompt: Prompt(a, b),
+  validator: fn(a) -> Result(c, b),
+) -> Prompt(c, b) {
   let operation = fn(text, attempt) {
-    prompt.operation(text, attempt) |> result.try(validator)
+    let value = prompt.operation(text, attempt)
+    case value {
+      Ok(value) -> validator(value)
+      Error(error) -> Error(error)
+    }
   }
   Prompt(operation)
 }
@@ -75,20 +84,25 @@ pub fn with_validator(
 /// Supply a custom formatter function to define how your prompt and errors should be printed.
 /// The formatter's input is an `Option(String)`, and is `Some` when an error was encountered.
 /// Raises errors defined in your pipeline and continuously prompts the user until correct data is provided.
-pub fn prompt(prompt: Prompt(a), formatter: fn(Option(String)) -> String) -> a {
-  prompt_loop(prompt, formatter, None, 0)
+pub fn prompt(prompt: Prompt(a, b), formatter: fn(Option(b)) -> String) -> a {
+  prompt_loop(prompt:, formatter:, previous_error: None, attempt: 0)
 }
 
 fn prompt_loop(
-  prompt: Prompt(a),
-  formatter: fn(Option(String)) -> String,
-  previous_error: Option(String),
-  attempt: Int,
+  prompt prompt: Prompt(a, b),
+  formatter formatter: fn(Option(b)) -> String,
+  previous_error previous_error: Option(b),
+  attempt attempt: Int,
 ) -> a {
-  case try_prompt_internal(prompt, formatter, previous_error, attempt) {
+  case try_prompt_internal(prompt:, formatter:, previous_error:, attempt:) {
     Ok(value) -> value
     Error(error) -> {
-      prompt_loop(prompt, formatter, Some(error), attempt + 1)
+      prompt_loop(
+        prompt:,
+        formatter:,
+        previous_error: Some(error),
+        attempt: attempt + 1,
+      )
     }
   }
 }
@@ -96,17 +110,17 @@ fn prompt_loop(
 /// Same as `prompt()`, except that it only prompts the user once and returns a result.
 /// Useful for defining your own prompt loop logic.
 pub fn try_prompt(
-  prompt: Prompt(a),
-  formatter: fn(Option(String)) -> String,
-) -> Result(a, String) {
-  try_prompt_internal(prompt, formatter, None, 0)
+  prompt: Prompt(a, b),
+  formatter: fn(Option(b)) -> String,
+) -> Result(a, b) {
+  try_prompt_internal(prompt:, formatter:, previous_error: None, attempt: 0)
 }
 
 fn try_prompt_internal(
-  prompt: Prompt(a),
-  formatter: fn(Option(String)) -> String,
-  previous_error: Option(String),
-  attempt: Int,
-) -> Result(a, String) {
+  prompt prompt: Prompt(a, b),
+  formatter formatter: fn(Option(b)) -> String,
+  previous_error previous_error: Option(b),
+  attempt attempt: Int,
+) -> Result(a, b) {
   previous_error |> formatter |> prompt.operation(attempt)
 }

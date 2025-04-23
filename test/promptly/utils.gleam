@@ -3,14 +3,21 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/regexp
 import gleam/result
-import promptly/internal/user_input
 
-pub fn result_returning_function(
-  results results: List(String),
-) -> fn(Int) -> Result(String, String) {
+pub fn input_internal(
+  text: String,
+  input_function: fn(String) -> Result(String, Nil),
+) -> String {
+  let assert Ok(text) = input_function(text)
+  text
+}
+
+pub fn response_generator(
+  responses responses: List(String),
+) -> fn(Int) -> String {
   fn(attempt) {
-    let assert Ok(input) = at(results, index: attempt)
-    user_input.input_internal(input, Ok)
+    let assert Ok(input) = at(responses, index: attempt)
+    input_internal(input, Ok)
   }
 }
 
@@ -31,9 +38,12 @@ pub type Date {
   Date(month: Int, day: Int, year: Int)
 }
 
-pub fn to_date_validator() -> fn(String) -> Result(Date, String) {
+pub type DateError {
+  ParseError1
+}
+
+pub fn to_date_validator() {
   fn(text) {
-    let error = "Could not convert \"" <> text <> "\" to Date."
     let assert Ok(re) = regexp.from_string("(\\d{2})/(\\d{2})/(\\d{4})")
     case regexp.scan(re, text) {
       [match] -> {
@@ -43,13 +53,13 @@ pub fn to_date_validator() -> fn(String) -> Result(Date, String) {
               submatches |> list.map(int.parse) |> result.all
             case date_components {
               Ok([month, day, year]) -> Ok(Date(month:, day:, year:))
-              _ -> Error(error)
+              _ -> Error(ParseError1)
             }
           }
-          None -> Error(error)
+          None -> Error(ParseError1)
         }
       }
-      _ -> Error(error)
+      _ -> Error(ParseError1)
     }
   }
 }
@@ -58,6 +68,18 @@ pub fn default_formatter(prompt: String) -> fn(Option(String)) -> String {
   fn(error) {
     case error {
       Some(error) -> "Error: " <> error <> "\n" <> prompt
+      None -> prompt
+    }
+  }
+}
+
+pub fn default_date_formatter(prompt: String) -> fn(Option(DateError)) -> String {
+  fn(error) {
+    case error {
+      Some(error) ->
+        case error {
+          ParseError1 -> "Error: Failed to parse"
+        }
       None -> prompt
     }
   }
