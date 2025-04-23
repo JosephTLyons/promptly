@@ -1,9 +1,9 @@
 import gleeunit/should
-import promptly/internal/user_input.{NotProvided, Provided}
+import promptly/internal/user_input
 
 pub fn input_test() {
-  user_input.input_internal("", Ok) |> should.equal(#(Ok(""), NotProvided))
-  user_input.input_internal("Hey", Ok) |> should.equal(#(Ok("Hey"), Provided))
-  user_input.input_internal("Nope", fn(_) { Error(Nil) })
-  |> should.equal(#(Error("Failed to get user input."), NotProvided))
+  user_input.input_internal("", Ok) |> should.equal(Ok(""))
+  user_input.input_internal("Hey", Ok) |> should.equal(Ok("Hey"))
+  user_input.input_internal("Nope", fn(value) { Ok(value) })
+  |> should.equal(Ok("Nope"))
 }

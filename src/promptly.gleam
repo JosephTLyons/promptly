@@ -2,10 +2,10 @@ import gleam/float
 import gleam/int
 import gleam/option.{type Option, None, Some}
 import gleam/result
-import promptly/internal/user_input.{type InputStatus, NotProvided, Provided}
+import promptly/internal/user_input
 
 pub opaque type Prompt(a) {
-  Prompt(operation: fn(String, Int) -> #(Result(a, String), InputStatus))
+  Prompt(operation: fn(String, Int) -> Result(a, String))
 }
 
 /// Used to begin building a new prompt pipeline.
@@ -16,7 +16,7 @@ pub fn new() -> Prompt(String) {
 
 @internal
 pub fn new_internal(
-  operation: fn(String, Int) -> #(Result(String, String), InputStatus),
+  operation: fn(String, Int) -> Result(String, String),
 ) -> Prompt(String) {
   let operation = fn(text, attempt) { operation(text, attempt) }
   Prompt(operation)
@@ -45,14 +45,16 @@ pub fn as_float(
 }
 
 /// Allows you to provide a default value when the user inputs an empty string: `""`.
-pub fn with_default(prompt: Prompt(a), default: a) -> Prompt(a) {
+pub fn with_default(prompt: Prompt(String), default: String) -> Prompt(String) {
   let operation = fn(text, attempt) {
-    let #(res, input) = prompt.operation(text, attempt)
-    let res = case input {
-      NotProvided -> Ok(default)
-      Provided -> res
-    }
-    #(res, Provided)
+    prompt.operation(text, attempt)
+    |> result.map(fn(text) {
+      case text, default {
+        "", "" -> text
+        "", default -> default
+        text, _ -> text
+      }
+    })
   }
   Prompt(operation)
 }
@@ -64,9 +66,7 @@ pub fn with_validator(
   validator: fn(a) -> Result(b, String),
 ) -> Prompt(b) {
   let operation = fn(text, attempt) {
-    let #(res, input) = prompt.operation(text, attempt)
-    let res = result.try(res, validator)
-    #(res, input)
+    prompt.operation(text, attempt) |> result.try(validator)
   }
   Prompt(operation)
 }
@@ -108,7 +108,5 @@ fn try_prompt_internal(
   previous_error: Option(String),
   attempt: Int,
 ) -> Result(a, String) {
-  let prompt_string = formatter(previous_error)
-  let #(result, _) = prompt.operation(prompt_string, attempt)
-  result
+  previous_error |> formatter |> prompt.operation(attempt)
 }

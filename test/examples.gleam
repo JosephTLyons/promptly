@@ -69,12 +69,13 @@ pub fn float_example() {
 
 pub fn validator_example() {
   fn() {
+    let default = "01/01/1970"
     let to_date_validator = utils.to_date_validator()
     promptly.new()
+    |> promptly.with_default(default)
     |> promptly.with_validator(to_date_validator)
-    |> promptly.with_default(utils.Date(month: 1, day: 1, year: 1970))
     |> promptly.prompt(default_formatter(
-      "Give me a date (default: 01/01/1970): ",
+      "Give me a date (default: " <> default <> "): ",
     ))
   }
 }

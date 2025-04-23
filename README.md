@@ -11,9 +11,12 @@ import gleam/io
 import promptly
 
 pub fn main() -> Nil {
-  let name = promptly.new() |> promptly.prompt(fn(_) { "Name: " })
+  // A simple example
+  let name = promptly.new() |> promptly.prompt(fn(_) { "Name: \n>" })
   io.println("Hello, " <> name)
   // Name: Joe
   // Hello, Joe
+
+  // A complex example
 }
 ```

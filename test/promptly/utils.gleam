@@ -3,11 +3,11 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/regexp
 import gleam/result
-import promptly/internal/user_input.{type InputStatus}
+import promptly/internal/user_input
 
 pub fn result_returning_function(
   results results: List(String),
-) -> fn(Int) -> #(Result(String, String), InputStatus) {
+) -> fn(Int) -> Result(String, String) {
   fn(attempt) {
     let assert Ok(input) = at(results, index: attempt)
     user_input.input_internal(input, Ok)
