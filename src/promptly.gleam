@@ -24,8 +24,9 @@ pub fn new_internal(operation: fn(String, Int) -> String) -> Prompt(String, b) {
 }
 
 /// A convenience function for attempting to convert text input into an integer.
-/// Use `with_validator()` for more control over input manipulation and to verify data.
-/// Accepts a function whose input receives the value the user provided, for designing your own error messages.
+/// Use `with_validator()` for more control over input manipulation and to
+/// verify data. Accepts a function whose input receives the value the user
+/// provided, for designing your own error messages.
 pub fn as_int(
   prompt: Prompt(String, b),
   error: fn(String) -> b,
@@ -49,7 +50,8 @@ pub fn as_float(
   })
 }
 
-/// Allows you to provide a default value when the user inputs an empty string: `""`.
+/// Allows you to provide a default value when the user inputs an empty string:
+/// `""`.
 pub fn with_default(
   prompt: Prompt(String, b),
   default: String,
@@ -63,8 +65,9 @@ pub fn with_default(
   })
 }
 
-/// Allows you to control which data is valid or not, as well as map input data to any value.
-/// The validator function should return a result with valid data in `Ok` variants and errors in `Error` variants.
+/// Allows you to control which data is valid or not, as well as map input data
+/// to any value. The validator function should return a result with valid data
+/// in `Ok` variants and errors in `Error` variants.
 pub fn with_validator(
   prompt: Prompt(a, b),
   validator: fn(a) -> Result(c, b),
@@ -75,9 +78,11 @@ pub fn with_validator(
   Prompt(operation)
 }
 
-/// Starts a prompt loop. Accepts a custom formatter function to define how your prompt and errors should be printed.
-/// The formatter's input is an `Option(String)`, and is `Some` when an error was encountered.
-/// Raises errors defined in your pipeline and continuously prompts the user until correct data is provided.
+/// Starts a prompt loop. Accepts a custom formatter function to define how your
+/// prompt and errors should be printed. The formatter's input is an
+/// `Option(String)`, and is `Some` when an error was encountered. Raises errors
+/// defined in your pipeline and continuously prompts the user until correct
+/// data is provided.
 pub fn prompt(prompt: Prompt(a, b), formatter: fn(Option(b)) -> String) -> a {
   prompt_loop(prompt:, formatter:, previous_error: None, attempt: 0)
 }
@@ -101,8 +106,10 @@ fn prompt_loop(
   }
 }
 
-/// `prompt_once()` will only prompt the user once and will return a result rather than a direct value.
-/// You can use this function when you only want to give the user one chance to respond or to manage your own side effects via custom prompt loop logic.
+/// `prompt_once()` will only prompt the user once and will return a result
+/// rather than a direct value. You can use this function when you only want to
+/// give the user one chance to respond or to manage your own side effects via
+/// custom prompt loop logic.
 pub fn prompt_once(prompt: Prompt(a, b), text: String) -> Result(a, b) {
   prompt_once_internal(prompt:, text:, attempt: 0)
 }
