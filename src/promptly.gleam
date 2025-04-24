@@ -75,8 +75,7 @@ pub fn with_validator(
   Prompt(operation)
 }
 
-/// Starts a prompt loop. Accepts a formatter function to define how to print the prompt.
-/// Supply a custom formatter function to define how your prompt and errors should be printed.
+/// Starts a prompt loop. Accepts a custom formatter function to define how your prompt and errors should be printed.
 /// The formatter's input is an `Option(String)`, and is `Some` when an error was encountered.
 /// Raises errors defined in your pipeline and continuously prompts the user until correct data is provided.
 pub fn prompt(prompt: Prompt(a, b), formatter: fn(Option(b)) -> String) -> a {
@@ -102,8 +101,8 @@ fn prompt_loop(
   }
 }
 
-/// Same as `prompt()`, except that it only prompts the user once and returns a result.
-/// Useful for defining your own prompt loop logic.
+/// `prompt_once()` will only prompt the user once and will return a result rather than a direct value.
+/// You can use this function when you only want to give the user one chance to respond or to manage your own side effects via custom prompt loop logic.
 pub fn prompt_once(prompt: Prompt(a, b), text: String) -> Result(a, b) {
   prompt_once_internal(prompt:, text:, attempt: 0)
 }
@@ -117,7 +116,7 @@ pub fn prompt_once_internal(
   prompt.operation(text, attempt)
 }
 
-// A convenience function for returning `text` as `"text"`
+/// A convenience function for returning `text` as `"text"`.
 pub fn quote_text(text: String) {
   "\"" <> text <> "\""
 }
