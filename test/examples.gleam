@@ -1,5 +1,7 @@
 import gleam/int
+import gleam/io
 import gleam/list
+import gleam/option.{type Option, None, Some}
 import gleam/string
 import promptly
 import promptly/utils.{default_formatter}
@@ -68,4 +70,39 @@ pub fn validator_example() {
   |> promptly.with_default(default)
   |> promptly.with_validator(to_date_validator)
   |> promptly.prompt(utils.default_date_formatter(prompt))
+}
+
+pub fn simple_example() {
+  let name = promptly.new() |> promptly.prompt(fn(_) { "Name: " })
+  io.println("Hello, " <> name)
+}
+
+pub fn custom_prompt_loop_example() {
+  let prompter =
+    promptly.new()
+    |> promptly.as_int(fn(error) { "\"" <> error <> "\" is not an int." })
+    |> promptly.with_validator(fn(value) {
+      case int.is_odd(value) {
+        True -> Ok(value)
+        False -> Error(int.to_string(value) <> " is even.")
+      }
+    })
+
+  prompter_loop(prompter, None)
+}
+
+fn prompter_loop(prompter, previous_error: Option(String)) {
+  let response =
+    promptly.try_prompt(prompter, previous_error, fn(error) {
+      let prompt = "Give me an int: "
+      case error {
+        Some(error) -> "Error: " <> error <> "\n" <> prompt
+        None -> prompt
+      }
+    })
+
+  case response {
+    Ok(value) -> value
+    Error(error) -> prompter_loop(prompter, Some(error))
+  }
 }
