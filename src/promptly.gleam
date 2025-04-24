@@ -86,8 +86,8 @@ pub fn prompt(prompt: Prompt(a, b), formatter: fn(Option(b)) -> String) -> a {
 
 fn prompt_loop(
   prompt prompt: Prompt(a, b),
-  formatter formatter: fn(Option(b)) -> String,
   previous_error previous_error: Option(b),
+  formatter formatter: fn(Option(b)) -> String,
   attempt attempt: Int,
 ) -> a {
   case try_prompt_internal(prompt:, formatter:, previous_error:, attempt:) {
@@ -95,8 +95,8 @@ fn prompt_loop(
     Error(error) -> {
       prompt_loop(
         prompt:,
-        formatter:,
         previous_error: Some(error),
+        formatter:,
         attempt: attempt + 1,
       )
     }
@@ -107,16 +107,16 @@ fn prompt_loop(
 /// Useful for defining your own prompt loop logic.
 pub fn try_prompt(
   prompt: Prompt(a, b),
-  formatter: fn(Option(b)) -> String,
   previous_error: Option(b),
+  formatter: fn(Option(b)) -> String,
 ) -> Result(a, b) {
   try_prompt_internal(prompt:, formatter:, previous_error:, attempt: 0)
 }
 
 fn try_prompt_internal(
   prompt prompt: Prompt(a, b),
-  formatter formatter: fn(Option(b)) -> String,
   previous_error previous_error: Option(b),
+  formatter formatter: fn(Option(b)) -> String,
   attempt attempt: Int,
 ) -> Result(a, b) {
   previous_error |> formatter |> prompt.operation(attempt)
