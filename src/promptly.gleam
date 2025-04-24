@@ -121,3 +121,8 @@ fn try_prompt_internal(
 ) -> Result(a, b) {
   previous_error |> formatter |> prompt.operation(attempt)
 }
+
+// A convenience function for returning `text` as `"text"`
+pub fn quote_text(text: String) {
+  "\"" <> text <> "\""
+}

@@ -1,7 +1,7 @@
 import gleam/int
 import gleam/option.{None, Some}
 import gleeunit/should
-import promptly
+import promptly.{quote_text}
 import promptly/utils.{default_formatter, response_generator}
 
 pub fn with_default_as_empty_string_test() {
@@ -85,7 +85,7 @@ pub fn custom_types_test() {
           AgeError(age) ->
             "Error: " <> int.to_string(age) <> " is not old enough.\n" <> prompt
           ParseError(text) ->
-            "Error: Could not parse \"" <> text <> "\".\n" <> prompt
+            "Error: Could not parse " <> quote_text(text) <> ".\n" <> prompt
         }
       None -> prompt
     }

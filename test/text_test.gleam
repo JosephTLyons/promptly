@@ -1,7 +1,7 @@
 import gleam/regexp
 import gleam/string
 import gleeunit/should
-import promptly
+import promptly.{quote_text}
 import promptly/utils.{default_formatter, response_generator}
 
 pub fn text_test() {
@@ -52,7 +52,7 @@ pub fn text_with_default_and_no_input_test() {
   promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
   |> promptly.with_default(default)
   |> promptly.prompt(default_formatter(
-    "Give me any text (default: \"" <> default <> "\"): ",
+    "Give me any text (default: " <> quote_text(default) <> "): ",
   ))
   |> should.equal(default)
 }
@@ -64,7 +64,7 @@ pub fn text_with_default_and_input_test() {
   promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
   |> promptly.with_default("Hello, World")
   |> promptly.prompt(default_formatter(
-    "Give me any text (default: \"" <> default <> "\"): ",
+    "Give me any text (default: " <> quote_text(default) <> "): ",
   ))
   |> should.equal("Hey")
 }

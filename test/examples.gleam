@@ -3,7 +3,7 @@ import gleam/io
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import promptly
+import promptly.{quote_text}
 import promptly/utils.{default_formatter}
 
 // The examples in this module ensure we don't break parts of the public API
@@ -20,7 +20,7 @@ pub fn text_example() {
       options |> list.map(string.lowercase) |> list.contains(lower)
     case is_valid_option {
       True -> Ok(text)
-      False -> Error("\"" <> text <> "\" isn't a valid option.")
+      False -> Error(quote_text(text) <> " isn't a valid option.")
     }
   }
 
@@ -80,7 +80,7 @@ pub fn simple_example() {
 pub fn custom_prompt_loop_example() {
   let prompter =
     promptly.new()
-    |> promptly.as_int(fn(error) { "\"" <> error <> "\" is not an int." })
+    |> promptly.as_int(fn(error) { quote_text(error) <> " is not an int." })
     |> promptly.with_validator(fn(value) {
       case int.is_odd(value) {
         True -> Ok(value)
