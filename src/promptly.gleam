@@ -89,7 +89,7 @@ fn prompt_loop(
   formatter formatter: fn(Option(b)) -> String,
   attempt attempt: Int,
 ) -> a {
-  case prompt_once_internal(prompt:, formatter:, previous_error:, attempt:) {
+  case previous_error |> formatter |> prompt.operation(attempt) {
     Ok(value) -> value
     Error(error) -> {
       prompt_loop(
@@ -104,21 +104,8 @@ fn prompt_loop(
 
 /// Same as `prompt()`, except that it only prompts the user once and returns a result.
 /// Useful for defining your own prompt loop logic.
-pub fn prompt_once(
-  prompt: Prompt(a, b),
-  previous_error: Option(b),
-  formatter: fn(Option(b)) -> String,
-) -> Result(a, b) {
-  prompt_once_internal(prompt:, formatter:, previous_error:, attempt: 0)
-}
-
-fn prompt_once_internal(
-  prompt prompt: Prompt(a, b),
-  previous_error previous_error: Option(b),
-  formatter formatter: fn(Option(b)) -> String,
-  attempt attempt: Int,
-) -> Result(a, b) {
-  previous_error |> formatter |> prompt.operation(attempt)
+pub fn prompt_once(prompt: Prompt(a, b), text: String) -> Result(a, b) {
+  prompt.operation(text, 0)
 }
 
 // A convenience function for returning `text` as `"text"`

@@ -1,5 +1,4 @@
 import gleam/int
-import gleam/option.{None}
 import gleeunit/should
 import promptly
 import promptly/utils.{default_formatter, response_generator}
@@ -108,8 +107,8 @@ pub fn int_prompt_once_fail_test() {
       }
     })
 
-  let prompt = default_formatter("Give me any int (default: 0): ")
-  let assert Error(error) = prompter |> promptly.prompt_once(None, prompt)
+  let prompt = "Give me any int (default: 0): "
+  let assert Error(error) = prompter |> promptly.prompt_once(prompt)
   error |> should.equal("11 is greater than 10!")
 }
 
@@ -132,7 +131,7 @@ pub fn int_prompt_once_succeed_test() {
       }
     })
 
-  let prompt = default_formatter("Give me any int (default: 0): ")
-  let assert Ok(age) = prompter |> promptly.prompt_once(None, prompt)
+  let prompt = "Give me any int (default: 0): "
+  let assert Ok(age) = prompter |> promptly.prompt_once(prompt)
   age |> should.equal(input)
 }
