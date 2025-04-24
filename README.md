@@ -21,6 +21,11 @@ pub fn main() {
 }
 ```
 
+```txt
+Name: Bob
+Hello, Bob
+```
+
 ... or build a complex pipeline with bells and whistles:
 
 ```gleam
@@ -61,4 +66,13 @@ pub fn main() {
 
   io.println("Hello, " <> entity <> "!")
 }
+```
+
+```txt
+Who are you:
+Error: You must tell me something!
+Who are you: Bob
+Error: "Bob" is NOT my favorite thing to greet!
+Who are you: joe
+Hello, joe!
 ```
