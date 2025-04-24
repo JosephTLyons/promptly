@@ -50,8 +50,9 @@ pub fn as_float(
   })
 }
 
-/// Allows you to provide a default value when the user inputs an empty string:
-/// `""`.
+/// A convenience function that allows for providing a default value when the
+/// input is an empty string: `""`. Use `with_validator()` for more control over
+/// input manipulation and to verify data.
 pub fn with_default(
   prompt: Prompt(String, b),
   default: String,
