@@ -29,24 +29,28 @@ pub fn new_internal(operation: fn(String, Int) -> String) -> Prompt(String, b) {
 /// provided, for designing your own error messages.
 pub fn as_int(
   prompt: Prompt(String, b),
-  error: fn(String) -> b,
+  to_error: fn(String) -> b,
 ) -> Prompt(Int, b) {
-  with_validator(prompt, fn(text) {
-    text
-    |> int.parse
-    |> result.replace_error(error(text))
-  })
+  as_value(prompt, int.parse, to_error)
 }
 
 /// Same as `as_int()`, but for float values.
 pub fn as_float(
   prompt: Prompt(String, b),
-  error: fn(String) -> b,
+  to_error: fn(String) -> b,
 ) -> Prompt(Float, b) {
+  as_value(prompt, float.parse, to_error)
+}
+
+fn as_value(
+  prompt: Prompt(String, b),
+  to_value: fn(String) -> Result(a, Nil),
+  to_error: fn(String) -> b,
+) -> Prompt(a, b) {
   with_validator(prompt, fn(text) {
     text
-    |> float.parse
-    |> result.replace_error(error(text))
+    |> to_value
+    |> result.replace_error(to_error(text))
   })
 }
 
