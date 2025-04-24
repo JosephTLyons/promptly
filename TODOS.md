@@ -1,12 +1,6 @@
 ## Blockers
 
 - Argument labels of public functions?
-- README.md
-    - Example with date.
-        - Start simple,
-        - Add validator,
-        - Add default
-- gleam.toml
 - Publish
 
 ---
