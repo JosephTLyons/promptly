@@ -65,7 +65,7 @@ pub fn with_default(
 }
 
 /// Allows you to control which data is valid or not, as well as map input data to any value.
-/// The validator function should return a result with valid data as `Ok` and error strings as `Error`.
+/// The validator function should return a result with valid data in `Ok` variants and errors in `Error` variants.
 pub fn with_validator(
   prompt: Prompt(a, b),
   validator: fn(a) -> Result(c, b),
