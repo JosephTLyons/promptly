@@ -88,7 +88,7 @@ pub fn custom_prompt_loop_example() {
 
 fn prompter_loop(prompter, previous_error: Option(String)) {
   let response =
-    promptly.try_prompt(prompter, previous_error, fn(error) {
+    promptly.prompt_once(prompter, previous_error, fn(error) {
       let prompt = "Give me an int: "
       case error {
         Some(error) -> "Error: " <> error <> "\n" <> prompt

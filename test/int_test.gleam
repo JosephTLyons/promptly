@@ -89,7 +89,7 @@ pub fn int_with_default_and_bad_input_and_then_good_input_test() {
   |> should.equal(1)
 }
 
-pub fn int_try_prompt_fail_test() {
+pub fn int_prompt_once_fail_test() {
   let input = 11
   let input_string = int.to_string(input)
   let response_generator = response_generator(responses: [input_string])
@@ -109,11 +109,11 @@ pub fn int_try_prompt_fail_test() {
     })
 
   let prompt = default_formatter("Give me any int (default: 0): ")
-  let assert Error(error) = prompter |> promptly.try_prompt(None, prompt)
+  let assert Error(error) = prompter |> promptly.prompt_once(None, prompt)
   error |> should.equal("11 is greater than 10!")
 }
 
-pub fn int_try_prompt_succeed_test() {
+pub fn int_prompt_once_succeed_test() {
   let input = 9
   let input_string = int.to_string(input)
   let response_generator = response_generator(responses: [input_string])
@@ -133,6 +133,6 @@ pub fn int_try_prompt_succeed_test() {
     })
 
   let prompt = default_formatter("Give me any int (default: 0): ")
-  let assert Ok(age) = prompter |> promptly.try_prompt(None, prompt)
+  let assert Ok(age) = prompter |> promptly.prompt_once(None, prompt)
   age |> should.equal(input)
 }
