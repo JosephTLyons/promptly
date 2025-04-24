@@ -11,7 +11,6 @@ pub opaque type Prompt(a, b) {
 /// Used to begin building a new prompt pipeline.
 pub fn new() -> Prompt(String, b) {
   let operation = fn(text, _) {
-    // Find a way to handle this without breaking the generic types
     let assert Ok(text) = input.input(text)
     text
   }
