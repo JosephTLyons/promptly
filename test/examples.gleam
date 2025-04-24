@@ -106,3 +106,42 @@ fn prompter_loop(prompter, previous_error: Option(String)) {
     Error(error) -> prompter_loop(prompter, Some(error))
   }
 }
+
+type NameError {
+  NotProvided
+  Bad(String)
+}
+
+pub fn readme_example() {
+  let name =
+    promptly.new()
+    |> promptly.with_validator(name_validator)
+    |> promptly.prompt(name_prompt_formatter)
+
+  io.println("Hello, " <> name)
+}
+
+fn name_validator(name) {
+  case name == "" {
+    True -> Error(NotProvided)
+    False ->
+      case string.lowercase(name) {
+        "joe" | "joey" | "joseph" -> Ok(name)
+        name -> Error(Bad(name))
+      }
+  }
+}
+
+fn name_prompt_formatter(error: Option(NameError)) -> String {
+  let prompt = "What is your name: "
+  case error {
+    None -> prompt
+    Some(error) -> {
+      let error_string = case error {
+        NotProvided -> "You must provide a name!"
+        Bad(name) -> quote_text(name) <> " is NOT my favorite name!"
+      }
+      "Error: " <> error_string <> "\n" <> prompt
+    }
+  }
+}
