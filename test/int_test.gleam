@@ -1,4 +1,5 @@
 import gleam/int
+import gleam/option.{None}
 import gleeunit/should
 import promptly
 import promptly/utils.{default_formatter, response_generator}
@@ -92,36 +93,46 @@ pub fn int_try_prompt_fail_test() {
   let input = 11
   let input_string = int.to_string(input)
   let response_generator = response_generator(responses: [input_string])
-  let error_message = "\"" <> input_string <> "\" was greater than 10!"
+  let error_message = fn(number) {
+    int.to_string(number) <> " is greater than 10!"
+  }
 
-  promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
-  |> promptly.with_default("0")
-  |> promptly.as_int(fn(_) { "Could not parse to Int." })
-  |> promptly.with_validator(fn(x) {
-    case x <= 10 {
-      True -> Ok(x)
-      False -> Error(error_message)
-    }
-  })
-  |> promptly.try_prompt(default_formatter("Give me any int (default: 0): "))
-  |> should.equal(Error(error_message))
+  let prompter =
+    promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
+    |> promptly.with_default("0")
+    |> promptly.as_int(fn(_) { "Could not parse to Int." })
+    |> promptly.with_validator(fn(age) {
+      case age <= 10 {
+        True -> Ok(age)
+        False -> Error(error_message(age))
+      }
+    })
+
+  let prompt = default_formatter("Give me any int (default: 0): ")
+  let assert Error(error) = prompter |> promptly.try_prompt(prompt, None)
+  error |> should.equal("11 is greater than 10!")
 }
 
 pub fn int_try_prompt_succeed_test() {
-  let input = 1
+  let input = 9
   let input_string = int.to_string(input)
   let response_generator = response_generator(responses: [input_string])
-  let error_message = "\"" <> input_string <> "\" was greater than 10!"
+  let error_message = fn(number) {
+    int.to_string(number) <> " is greater than 10!"
+  }
 
-  promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
-  |> promptly.with_default("0")
-  |> promptly.as_int(fn(_) { "Could not parse to Int." })
-  |> promptly.with_validator(fn(x) {
-    case x <= 10 {
-      True -> Ok(x)
-      False -> Error(error_message)
-    }
-  })
-  |> promptly.try_prompt(default_formatter("Give me any int (default: 0): "))
-  |> should.equal(Ok(input))
+  let prompter =
+    promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
+    |> promptly.with_default("0")
+    |> promptly.as_int(fn(_) { "Could not parse to Int." })
+    |> promptly.with_validator(fn(age) {
+      case age <= 10 {
+        True -> Ok(age)
+        False -> Error(error_message(age))
+      }
+    })
+
+  let prompt = default_formatter("Give me any int (default: 0): ")
+  let assert Ok(age) = prompter |> promptly.try_prompt(prompt, None)
+  age |> should.equal(input)
 }

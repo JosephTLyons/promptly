@@ -108,8 +108,9 @@ fn prompt_loop(
 pub fn try_prompt(
   prompt: Prompt(a, b),
   formatter: fn(Option(b)) -> String,
+  previous_error: Option(b),
 ) -> Result(a, b) {
-  try_prompt_internal(prompt:, formatter:, previous_error: None, attempt: 0)
+  try_prompt_internal(prompt:, formatter:, previous_error:, attempt: 0)
 }
 
 fn try_prompt_internal(
