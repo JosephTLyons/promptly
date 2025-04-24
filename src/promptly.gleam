@@ -71,11 +71,7 @@ pub fn with_validator(
   validator: fn(a) -> Result(c, b),
 ) -> Prompt(c, b) {
   let operation = fn(text, attempt) {
-    let value = prompt.operation(text, attempt)
-    case value {
-      Ok(value) -> validator(value)
-      Error(error) -> Error(error)
-    }
+    text |> prompt.operation(attempt) |> result.try(validator)
   }
   Prompt(operation)
 }
