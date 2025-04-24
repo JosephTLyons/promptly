@@ -72,11 +72,6 @@ pub fn validator_example() {
   |> promptly.prompt(utils.default_date_formatter(prompt))
 }
 
-pub fn simple_example() {
-  let name = promptly.new() |> promptly.prompt(fn(_) { "Name: " })
-  io.println("Hello, " <> name)
-}
-
 pub fn custom_prompt_loop_example() {
   let prompter =
     promptly.new()
@@ -107,41 +102,41 @@ fn prompter_loop(prompter, previous_error: Option(String)) {
   }
 }
 
-type NameError {
+pub fn readme_simple_example() {
+  let name = promptly.new() |> promptly.prompt(fn(_) { "Name: " })
+  io.println("Hello, " <> name)
+}
+
+type EntityError {
   NotProvided
   Bad(String)
 }
 
-pub fn readme_example() {
-  let name =
+pub fn readme_complex_example() {
+  let entity =
     promptly.new()
-    |> promptly.with_validator(name_validator)
-    |> promptly.prompt(name_prompt_formatter)
-
-  io.println("Hello, " <> name)
-}
-
-fn name_validator(name) {
-  case name == "" {
-    True -> Error(NotProvided)
-    False ->
-      case string.lowercase(name) {
-        "joe" | "joey" | "joseph" -> Ok(name)
-        name -> Error(Bad(name))
+    |> promptly.with_validator(fn(entity) {
+      case entity {
+        "" -> Error(NotProvided)
+        "joe" | "world" -> Ok(entity)
+        _ -> Error(Bad(entity))
       }
-  }
-}
-
-fn name_prompt_formatter(error: Option(NameError)) -> String {
-  let prompt = "What is your name: "
-  case error {
-    None -> prompt
-    Some(error) -> {
-      let error_string = case error {
-        NotProvided -> "You must provide a name!"
-        Bad(name) -> quote_text(name) <> " is NOT my favorite name!"
+    })
+    |> promptly.prompt(fn(error) {
+      let prompt = "Who are you: "
+      case error {
+        None -> prompt
+        Some(error) -> {
+          let error_string = case error {
+            NotProvided -> "You must tell me something!"
+            Bad(entity) ->
+              promptly.quote_text(entity)
+              <> " is NOT my favorite thing to greet!"
+          }
+          "Error: " <> error_string <> "\n" <> prompt
+        }
       }
-      "Error: " <> error_string <> "\n" <> prompt
-    }
-  }
+    })
+
+  io.println("Hello, " <> entity <> "!")
 }
