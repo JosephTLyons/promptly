@@ -88,10 +88,8 @@ pub fn int_with_default_and_bad_input_and_then_good_input_test() {
   |> should.equal(1)
 }
 
-pub fn int_prompt_once_fail_test() {
-  let input = 11
-  let input_string = int.to_string(input)
-  let response_generator = response_generator(responses: [input_string])
+pub fn int_prompt_once_test() {
+  let response_generator = response_generator(responses: ["11", "9"])
   let error_message = fn(number) {
     int.to_string(number) <> " is greater than 10!"
   }
@@ -108,30 +106,8 @@ pub fn int_prompt_once_fail_test() {
     })
 
   let prompt = "Give me any int (default: 0): "
-  let assert Error(error) = prompter |> promptly.prompt_once(prompt)
-  error |> should.equal("11 is greater than 10!")
-}
+  let assert Error("11 is greater than 10!") =
+    prompter |> promptly.prompt_once_internal(prompt, 0)
 
-pub fn int_prompt_once_succeed_test() {
-  let input = 9
-  let input_string = int.to_string(input)
-  let response_generator = response_generator(responses: [input_string])
-  let error_message = fn(number) {
-    int.to_string(number) <> " is greater than 10!"
-  }
-
-  let prompter =
-    promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
-    |> promptly.with_default("0")
-    |> promptly.as_int(fn(_) { "Could not parse to Int." })
-    |> promptly.with_validator(fn(age) {
-      case age <= 10 {
-        True -> Ok(age)
-        False -> Error(error_message(age))
-      }
-    })
-
-  let prompt = "Give me any int (default: 0): "
-  let assert Ok(age) = prompter |> promptly.prompt_once(prompt)
-  age |> should.equal(input)
+  let assert Ok(9) = prompter |> promptly.prompt_once_internal(prompt, 1)
 }

@@ -105,7 +105,16 @@ fn prompt_loop(
 /// Same as `prompt()`, except that it only prompts the user once and returns a result.
 /// Useful for defining your own prompt loop logic.
 pub fn prompt_once(prompt: Prompt(a, b), text: String) -> Result(a, b) {
-  prompt.operation(text, 0)
+  prompt_once_internal(prompt:, text:, attempt: 0)
+}
+
+@internal
+pub fn prompt_once_internal(
+  prompt prompt: Prompt(a, b),
+  text text: String,
+  attempt attempt: Int,
+) -> Result(a, b) {
+  prompt.operation(text, attempt)
 }
 
 // A convenience function for returning `text` as `"text"`
