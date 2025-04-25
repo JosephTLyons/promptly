@@ -44,12 +44,12 @@ pub fn as_float(
 
 fn as_value(
   prompt: Prompt(String, b),
-  to_value: fn(String) -> Result(a, Nil),
+  as_value: fn(String) -> Result(a, Nil),
   to_error: fn(String) -> b,
 ) -> Prompt(a, b) {
   with_validator(prompt, fn(text) {
     text
-    |> to_value
+    |> as_value
     |> result.replace_error(to_error(text))
   })
 }
