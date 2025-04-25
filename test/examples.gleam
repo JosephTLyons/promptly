@@ -3,8 +3,8 @@ import gleam/io
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import promptly.{quote_text}
-import promptly/utils.{default_formatter}
+import promptly.{type Error, InputError, ValidationFailed, quote_text}
+import promptly/utils
 
 // The examples in this module ensure we don't break parts of the public API
 // that are intentionally **NOT** tested, such as `new()`, as it would block
@@ -20,13 +20,13 @@ pub fn text_example() {
       options |> list.map(string.lowercase) |> list.contains(lower)
     case is_valid_option {
       True -> Ok(text)
-      False -> Error(quote_text(text) <> " isn't a valid option.")
+      False -> Error(quote_text(text) <> " isn't a valid option!")
     }
   }
 
   promptly.new()
   |> promptly.with_validator(validator)
-  |> promptly.prompt(default_formatter(prompt))
+  |> promptly.prompt(utils.default_formatter(prompt))
 }
 
 pub fn int_example() {
@@ -40,26 +40,26 @@ pub fn int_example() {
     <> "): "
 
   promptly.new()
-  |> promptly.as_int(fn(_) { "Could not parse to Int." })
+  |> promptly.as_int(fn(_) { "Could not parse to Int!" })
   |> promptly.with_validator(fn(x) {
     case x >= lower && x < upper {
       True -> Ok(x)
-      False -> Error("Isn't in range.")
+      False -> Error("Isn't in range!")
     }
   })
-  |> promptly.prompt(default_formatter(prompt))
+  |> promptly.prompt(utils.default_formatter(prompt))
 }
 
 pub fn float_example() {
   promptly.new()
-  |> promptly.as_float(fn(_) { "Could not parse to Float." })
+  |> promptly.as_float(fn(_) { "Could not parse to Float!" })
   |> promptly.with_validator(fn(x) {
     case x != 0.0 {
       True -> Ok(x)
-      False -> Error("Wasn't a non-zero float.")
+      False -> Error("Wasn't a non-zero float!")
     }
   })
-  |> promptly.prompt(default_formatter("Give me a non-zero float: "))
+  |> promptly.prompt(utils.default_formatter("Give me a non-zero float: "))
 }
 
 pub fn validator_example() {
@@ -75,11 +75,11 @@ pub fn validator_example() {
 pub fn custom_prompt_loop_example() {
   let prompter =
     promptly.new()
-    |> promptly.as_int(fn(error) { quote_text(error) <> " is not an int." })
+    |> promptly.as_int(fn(error) { quote_text(error) <> " is not an int!" })
     |> promptly.with_validator(fn(value) {
       case int.is_odd(value) {
         True -> Ok(value)
-        False -> Error(int.to_string(value) <> " is even.")
+        False -> Error(int.to_string(value) <> " is even!")
       }
     })
 
@@ -87,12 +87,18 @@ pub fn custom_prompt_loop_example() {
 }
 
 fn prompter_loop(
-  prompter: promptly.Prompt(a, String),
-  previous_error: Option(String),
+  prompter: promptly.Prompt(a, Error(String)),
+  previous_error: Option(Error(String)),
 ) -> a {
   let prompt = "Give me an int: "
   let input = case previous_error {
-    Some(error) -> "Error: " <> error <> "\n" <> prompt
+    Some(error) -> {
+      let error = case error {
+        InputError -> "Input failed!"
+        ValidationFailed(error) -> error
+      }
+      "Error: " <> error <> "\n" <> prompt
+    }
     None -> prompt
   }
   let response = promptly.prompt_once(prompter, input)
@@ -129,10 +135,14 @@ pub fn readme_complex_example() {
         None -> prompt
         Some(error) -> {
           let error_string = case error {
-            NotProvided -> "You must tell me something!"
-            Bad(entity) ->
-              promptly.quote_text(entity)
-              <> " is NOT my favorite thing to greet!"
+            InputError -> "Input failed!"
+            ValidationFailed(error) ->
+              case error {
+                NotProvided -> "You must tell me something!"
+                Bad(entity) ->
+                  promptly.quote_text(entity)
+                  <> " is NOT my favorite thing to greet!"
+              }
           }
           "Error: " <> error_string <> "\n" <> prompt
         }

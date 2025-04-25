@@ -3,14 +3,12 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/regexp
 import gleam/result
+import promptly.{type Error, InputError, ValidationFailed}
 
 pub fn response_generator(
   responses responses: List(String),
-) -> fn(Int) -> String {
-  fn(attempt) {
-    let assert Ok(input) = at(responses, index: attempt)
-    input
-  }
+) -> fn(Int) -> Result(String, Nil) {
+  fn(attempt) { at(responses, index: attempt) }
 }
 
 pub fn at(items items: List(a), index index: Int) -> Result(a, Nil) {
@@ -56,22 +54,33 @@ pub fn to_date_validator() {
   }
 }
 
-pub fn default_formatter(prompt: String) -> fn(Option(String)) -> String {
+pub fn default_formatter(prompt: String) -> fn(Option(Error(String))) -> String {
   fn(error) {
     case error {
-      Some(error) -> "Error: " <> error <> "\n" <> prompt
+      Some(error) -> {
+        let error = case error {
+          InputError -> "Input failed!"
+          ValidationFailed(error) -> error
+        }
+        "Error: " <> error <> "\n" <> prompt
+      }
       None -> prompt
     }
   }
 }
 
-pub fn default_date_formatter(prompt: String) -> fn(Option(DateError)) -> String {
+pub fn default_date_formatter(
+  prompt: String,
+) -> fn(Option(Error(DateError))) -> String {
   fn(error) {
     case error {
-      Some(error) ->
-        case error {
-          ParseError1 -> "Error: Failed to parse"
+      Some(error) -> {
+        let error = case error {
+          InputError -> "Input failed!"
+          ValidationFailed(_) -> "Failed to parse!"
         }
+        "Error: " <> error <> "\n" <> prompt
+      }
       None -> prompt
     }
   }

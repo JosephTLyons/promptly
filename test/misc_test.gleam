@@ -1,8 +1,8 @@
 import gleam/int
 import gleam/option.{None, Some}
 import gleeunit/should
-import promptly.{quote_text}
-import promptly/utils.{default_formatter, response_generator}
+import promptly.{InputError, ValidationFailed, quote_text}
+import promptly/utils.{response_generator}
 
 pub fn with_default_as_empty_string_test() {
   let response_generator = response_generator(responses: ["", "1"])
@@ -10,7 +10,7 @@ pub fn with_default_as_empty_string_test() {
   promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
   |> promptly.with_default("")
   |> promptly.as_int(fn(_) { "" })
-  |> promptly.prompt(default_formatter("Give me any text: "))
+  |> promptly.prompt(utils.default_formatter("Give me any text: "))
   |> should.equal(1)
 }
 
@@ -27,7 +27,7 @@ pub fn multiple_with_defaults_test() {
   |> promptly.with_default("1")
   |> promptly.with_default("")
   |> promptly.as_int(fn(_) { "" })
-  |> promptly.prompt(default_formatter("Give me any text: "))
+  |> promptly.prompt(utils.default_formatter("Give me any text: "))
   |> should.equal(0)
 }
 
@@ -80,13 +80,18 @@ pub fn custom_types_test() {
   })
   |> promptly.prompt(fn(error) {
     case error {
-      Some(error) ->
-        case error {
-          AgeError(age) ->
-            "Error: " <> int.to_string(age) <> " is not old enough.\n" <> prompt
-          ParseError(text) ->
-            "Error: Could not parse " <> quote_text(text) <> ".\n" <> prompt
+      Some(error) -> {
+        let error = case error {
+          InputError -> "Input failed!"
+          ValidationFailed(error) ->
+            case error {
+              AgeError(age) -> int.to_string(age) <> " is not old enough!"
+              ParseError(text) -> "Could not parse " <> quote_text(text) <> "!"
+            }
         }
+        "Error: " <> error <> "\n" <> prompt
+      }
+
       None -> prompt
     }
   })

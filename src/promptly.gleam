@@ -4,22 +4,32 @@ import gleam/option.{type Option, None, Some}
 import gleam/result
 import input
 
+/// The error types returned by `promptly`. If the underlying [input
+/// mechanism](https://github.com/bcpeinhardt/input) fails, `InputError` will be
+/// returned. If any of your custom validation checks fail, `ValidationFailed`
+/// will be returned with your custom error.
+pub type Error(a) {
+  InputError
+  ValidationFailed(a)
+}
+
 pub opaque type Prompt(a, b) {
   Prompt(operation: fn(String, Int) -> Result(a, b))
 }
 
 /// Used to begin building a new prompt pipeline.
-pub fn new() -> Prompt(String, b) {
-  let operation = fn(text, _) {
-    let assert Ok(text) = input.input(text)
-    text
-  }
+pub fn new() -> Prompt(String, Error(b)) {
+  let operation = fn(text, _) { input.input(text) }
   new_internal(operation)
 }
 
 @internal
-pub fn new_internal(operation: fn(String, Int) -> String) -> Prompt(String, b) {
-  let operation = fn(text, attempt) { operation(text, attempt) |> Ok }
+pub fn new_internal(
+  operation: fn(String, Int) -> Result(String, Nil),
+) -> Prompt(String, Error(b)) {
+  let operation = fn(text, attempt) {
+    operation(text, attempt) |> result.replace_error(InputError)
+  }
   Prompt(operation)
 }
 
@@ -28,25 +38,25 @@ pub fn new_internal(operation: fn(String, Int) -> String) -> Prompt(String, b) {
 /// verify data. Accepts a function whose input receives the value the user
 /// provided, for crafting your own errors.
 pub fn as_int(
-  prompt: Prompt(String, b),
+  prompt: Prompt(String, Error(b)),
   to_error: fn(String) -> b,
-) -> Prompt(Int, b) {
+) -> Prompt(Int, Error(b)) {
   as_value(prompt, int.parse, to_error)
 }
 
 /// Same as `as_int()`, but for float values.
 pub fn as_float(
-  prompt: Prompt(String, b),
+  prompt: Prompt(String, Error(b)),
   to_error: fn(String) -> b,
-) -> Prompt(Float, b) {
+) -> Prompt(Float, Error(b)) {
   as_value(prompt, float.parse, to_error)
 }
 
 fn as_value(
-  prompt: Prompt(String, b),
+  prompt: Prompt(String, Error(b)),
   as_value: fn(String) -> Result(a, Nil),
   to_error: fn(String) -> b,
-) -> Prompt(a, b) {
+) -> Prompt(a, Error(b)) {
   with_validator(prompt, fn(text) {
     text
     |> as_value
@@ -58,9 +68,9 @@ fn as_value(
 /// input is an empty string: `""`. Use `with_validator()` for more control over
 /// input manipulation and to verify data.
 pub fn with_default(
-  prompt: Prompt(String, b),
+  prompt: Prompt(String, Error(b)),
   default: String,
-) -> Prompt(String, b) {
+) -> Prompt(String, Error(b)) {
   with_validator(prompt, fn(text) {
     case text, default {
       "", "" -> Ok(text)
@@ -74,11 +84,17 @@ pub fn with_default(
 /// to any value. The validator function should return a result with valid data
 /// in `Ok` variants and errors in `Error` variants.
 pub fn with_validator(
-  prompt: Prompt(a, b),
+  prompt: Prompt(a, Error(b)),
   validator: fn(a) -> Result(c, b),
-) -> Prompt(c, b) {
+) -> Prompt(c, Error(b)) {
   let operation = fn(text, attempt) {
-    text |> prompt.operation(attempt) |> result.try(validator)
+    text
+    |> prompt.operation(attempt)
+    |> result.try(fn(value) {
+      value
+      |> validator
+      |> result.map_error(ValidationFailed)
+    })
   }
   Prompt(operation)
 }
