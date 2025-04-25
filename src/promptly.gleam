@@ -24,9 +24,9 @@ pub fn new_internal(operation: fn(String, Int) -> String) -> Prompt(String, b) {
 }
 
 /// A convenience function for attempting to convert text input into an integer.
-/// Use `with_validator()` for more control over input manipulation and to
+/// Use `with_validator()` for precise control over input manipulation and to
 /// verify data. Accepts a function whose input receives the value the user
-/// provided, for designing your own error messages.
+/// provided, for crafting your own errors.
 pub fn as_int(
   prompt: Prompt(String, b),
   to_error: fn(String) -> b,
