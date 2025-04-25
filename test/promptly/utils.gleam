@@ -4,20 +4,12 @@ import gleam/option.{type Option, None, Some}
 import gleam/regexp
 import gleam/result
 
-pub fn input_internal(
-  text: String,
-  input_function: fn(String) -> Result(String, Nil),
-) -> String {
-  let assert Ok(text) = input_function(text)
-  text
-}
-
 pub fn response_generator(
   responses responses: List(String),
 ) -> fn(Int) -> String {
   fn(attempt) {
     let assert Ok(input) = at(responses, index: attempt)
-    input_internal(input, Ok)
+    input
   }
 }
 
