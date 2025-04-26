@@ -1,38 +1,3 @@
-# promptly
-
-[![Package Version](https://img.shields.io/hexpm/v/promptly)](https://hex.pm/packages/promptly)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/promptly/)
-
-Validated user input.
-
-## Installation
-
-```sh
-gleam add promptly
-```
-
-## Usage
-
-Configure your prompter to be as simple as you like:
-
-```gleam
-import gleam/io
-import promptly
-
-pub fn main() -> Nil {
-  let name = promptly.new() |> promptly.prompt(fn(_) { "Name: " })
-  io.println("Hello, " <> name)
-}
-```
-
-```txt
-Name: Joe
-Hello, Joe
-```
-
-... or build something more complex with input validation:
-
-```gleam
 import gleam/io
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -79,18 +44,3 @@ fn formatter(error: Option(Error(EntityError))) -> String {
     }
   }
 }
-```
-
-```txt
-Who are you:
-C'mon!
-Who are you: Bob
-"Bob"? That sounds lovely, but try again!
-Who are you: Joe
-Hello, Joe!
-```
-
-## Tips
-
-- Use custom error types, along with `prompt_once`, to build custom prompt loops with specialized logic.
-- Add [`gleam-community/ansi`](https://github.com/gleam-community/ansi) for pretty output.

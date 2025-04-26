@@ -1,5 +1,4 @@
 import gleam/int
-import gleam/io
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -107,47 +106,4 @@ fn prompter_loop(
     Ok(value) -> value
     Error(error) -> prompter_loop(prompter, Some(error))
   }
-}
-
-pub fn readme_simple_example() {
-  let name = promptly.new() |> promptly.prompt(fn(_) { "Name: " })
-  io.println("Hello, " <> name)
-}
-
-type EntityError {
-  NotProvided
-  Bad(String)
-}
-
-pub fn readme_complex_example() {
-  let entity =
-    promptly.new()
-    |> promptly.with_validator(fn(entity) {
-      case entity {
-        "" -> Error(NotProvided)
-        "joe" | "world" -> Ok(entity)
-        _ -> Error(Bad(entity))
-      }
-    })
-    |> promptly.prompt(fn(error) {
-      let prompt = "Who are you: "
-      case error {
-        None -> prompt
-        Some(error) -> {
-          let error_string = case error {
-            InputError -> "Input failed!"
-            ValidationFailed(error) ->
-              case error {
-                NotProvided -> "You must tell me something!"
-                Bad(entity) ->
-                  promptly.quote_text(entity)
-                  <> " is NOT my favorite thing to greet!"
-              }
-          }
-          "Error: " <> error_string <> "\n" <> prompt
-        }
-      }
-    })
-
-  io.println("Hello, " <> entity <> "!")
 }
