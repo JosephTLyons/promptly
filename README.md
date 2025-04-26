@@ -92,5 +92,5 @@ Hello, Joe!
 
 ## Tips
 
-- Use custom error types, along with `prompt_once`, to build custom prompt loops with specialized logic.
+- Use your own error types, along with `prompt_once`, to build custom prompt loops with specialized logic.
 - Add [`gleam-community/ansi`](https://github.com/gleam-community/ansi) for pretty output.
