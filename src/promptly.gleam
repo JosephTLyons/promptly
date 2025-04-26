@@ -36,8 +36,8 @@ pub fn new_internal(
 }
 
 /// A convenience function for attempting to convert text input into an integer.
-/// Use `with_validator()` for precise control over input manipulation and to
-/// verify data. Accepts a function whose input receives the value the user
+/// Use `with_validator()` for precise control over input manipulation and data
+/// validation. Accepts a function whose input receives the value the user
 /// provided, for crafting your own errors.
 pub fn as_int(
   prompt: Prompt(String, Error(b)),
@@ -67,8 +67,8 @@ fn as_value(
 }
 
 /// A convenience function that allows for providing a default value when the
-/// input is an empty string: `""`. Use `with_validator()` for more control over
-/// input manipulation and to verify data.
+/// input is an empty string: `""`. Use `with_validator()` for precise control
+/// over input manipulation and data validation.
 pub fn with_default(
   prompt: Prompt(String, Error(b)),
   default: String,
