@@ -4,12 +4,14 @@ import gleam/option.{type Option, None, Some}
 import gleam/result
 import input
 
-/// The error types returned by `promptly`. If the underlying [input
-/// mechanism](https://github.com/bcpeinhardt/input) fails, `InputError` will be
-/// returned. If any of your custom validation checks fail, `ValidationFailed`
-/// will be returned with your custom error.
+/// The error types returned by `promptly`.
 pub type Error(a) {
+  /// If the underlying [input mechanism](https://github.com/bcpeinhardt/input)
+  /// fails, `InputError` will be returned.
   InputError
+
+  /// If any of your custom validation checks fail, `ValidationFailed` will be
+  /// returned with your custom error.
   ValidationFailed(a)
 }
 
