@@ -41,7 +41,6 @@ pub fn multiple_with_defaults_test() {
 }
 
 pub fn date_uses_default_test() {
-  let to_date_validator = utils.to_date_validator()
   let default = "01/01/1970"
   let prompt = "Give me a date (default: " <> default <> "): "
 
@@ -53,13 +52,12 @@ pub fn date_uses_default_test() {
       |> Ok
     })
     |> promptly.with_default(default)
-    |> promptly.with_validator(to_date_validator)
+    |> promptly.with_validator(utils.to_date_validator)
     |> promptly.prompt(utils.default_date_formatter(prompt))
     == utils.Date(month: 1, day: 1, year: 1970)
 }
 
 pub fn date_does_not_use_default_test() {
-  let to_date_validator = utils.to_date_validator()
   let default = "01/01/1970"
   let prompt = "Give me a date (default: " <> default <> "): "
 
@@ -71,7 +69,7 @@ pub fn date_does_not_use_default_test() {
       |> Ok
     })
     |> promptly.with_default(default)
-    |> promptly.with_validator(to_date_validator)
+    |> promptly.with_validator(utils.to_date_validator)
     |> promptly.prompt(utils.default_date_formatter(prompt))
     == utils.Date(month: 4, day: 12, year: 1990)
 }
