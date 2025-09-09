@@ -53,9 +53,9 @@ pub fn float_example() {
   promptly.new()
   |> promptly.as_float(fn(_) { "Could not parse to Float!" })
   |> promptly.with_validator(fn(x) {
-    case x != 0.0 {
-      True -> Ok(x)
-      False -> Error("Wasn't a non-zero float!")
+    case x == 0.0 {
+      True -> Error("Wasn't a non-zero float!")
+      False -> Ok(x)
     }
   })
   |> promptly.prompt(utils.default_formatter("Give me a non-zero float: "))
