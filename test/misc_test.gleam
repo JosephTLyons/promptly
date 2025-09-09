@@ -2,12 +2,17 @@ import gleam/int
 import gleam/option.{None, Some}
 import gleeunit/should
 import promptly.{InputError, ValidationFailed, quote_text}
-import promptly/utils.{response_generator}
+import promptly/utils
 
 pub fn with_default_as_empty_string_test() {
-  let response_generator = response_generator(responses: ["", "1"])
-
-  promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
+  promptly.new_internal(fn(_, attempt) {
+    case attempt {
+      0 -> ""
+      1 -> "1"
+      _ -> panic
+    }
+    |> Ok
+  })
   |> promptly.with_default("")
   |> promptly.as_int(fn(_) { "" })
   |> promptly.prompt(utils.default_formatter("Give me any text: "))
@@ -16,11 +21,16 @@ pub fn with_default_as_empty_string_test() {
 
 // This doesn't make sense, but someone will try to do this
 pub fn multiple_with_defaults_test() {
-  let response_generator = response_generator(responses: ["", "1"])
-
   // With multiple with_defaults, we should always pick the first non-empty
   // string one
-  promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
+  promptly.new_internal(fn(_, attempt) {
+    case attempt {
+      0 -> ""
+      1 -> "1"
+      _ -> panic
+    }
+    |> Ok
+  })
   |> promptly.with_default("")
   |> promptly.with_default("0")
   |> promptly.with_default("")
@@ -32,12 +42,17 @@ pub fn multiple_with_defaults_test() {
 }
 
 pub fn date_uses_default_test() {
-  let response_generator = response_generator(responses: [""])
   let to_date_validator = utils.to_date_validator()
   let default = "01/01/1970"
   let prompt = "Give me a date (default: " <> default <> "): "
 
-  promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
+  promptly.new_internal(fn(_, attempt) {
+    case attempt {
+      0 -> ""
+      _ -> panic
+    }
+    |> Ok
+  })
   |> promptly.with_default(default)
   |> promptly.with_validator(to_date_validator)
   |> promptly.prompt(utils.default_date_formatter(prompt))
@@ -45,12 +60,17 @@ pub fn date_uses_default_test() {
 }
 
 pub fn date_does_not_use_default_test() {
-  let response_generator = response_generator(responses: ["04/12/1990"])
   let to_date_validator = utils.to_date_validator()
   let default = "01/01/1970"
   let prompt = "Give me a date (default: " <> default <> "): "
 
-  promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
+  promptly.new_internal(fn(_, attempt) {
+    case attempt {
+      0 -> "04/12/1990"
+      _ -> panic
+    }
+    |> Ok
+  })
   |> promptly.with_default(default)
   |> promptly.with_validator(to_date_validator)
   |> promptly.prompt(utils.default_date_formatter(prompt))
@@ -67,10 +87,16 @@ type AgeError {
 }
 
 pub fn custom_types_test() {
-  let response_generator = response_generator(responses: ["16", "18"])
   let prompt = "How old are you: "
 
-  promptly.new_internal(fn(_, attempt) { response_generator(attempt) })
+  promptly.new_internal(fn(_, attempt) {
+    case attempt {
+      0 -> "16"
+      1 -> "18"
+      _ -> panic
+    }
+    |> Ok
+  })
   |> promptly.as_int(fn(text) { ParseError(text) })
   |> promptly.with_validator(fn(input) {
     case input >= 18 {

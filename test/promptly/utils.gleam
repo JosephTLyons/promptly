@@ -5,25 +5,6 @@ import gleam/regexp
 import gleam/result
 import promptly.{type Error, InputError, ValidationFailed}
 
-pub fn response_generator(
-  responses responses: List(String),
-) -> fn(Int) -> Result(String, Nil) {
-  fn(attempt) { at(responses, index: attempt) }
-}
-
-pub fn at(items items: List(a), index index: Int) -> Result(a, Nil) {
-  do_at(items:, index:)
-}
-
-pub fn do_at(items items: List(a), index index: Int) -> Result(a, Nil) {
-  case items, index {
-    _, index if index < 0 -> Error(Nil)
-    [_, ..rest], index if index > 0 -> do_at(items: rest, index: index - 1)
-    [item, ..], _ -> Ok(item)
-    [], _ -> Error(Nil)
-  }
-}
-
 pub type Date {
   Date(month: Int, day: Int, year: Int)
 }
